@@ -395,7 +395,7 @@ var ReactDataGrid = React.createClass({
     }
   },
   handleRowSelectPropagation(rowSelectionStates: Array){
-    if(this.props.onRowSelect !== null){
+    if(this.props.onRowSelect != null){
       var selectedRows = [];
       for(var i = 0; i < this.props.rowsCount; i++){
         if(rowSelectionStates[i] === true){
