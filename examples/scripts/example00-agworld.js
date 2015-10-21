@@ -14,6 +14,8 @@ var _rows = [];
 for (var i = 1; i < 100; i++) {
   _rows.push({
     id: i,
+    property : ["And's Farm", 'Grow Joe', 'Grow Moe'][Math.floor((Math.random() * 3) + 1)],
+    paddock : 'Field ' + Math.floor((Math.random() * 100) + 1),
     task: 'Task ' + i,
     priority : ['Critical', 'High', 'Medium', 'Low'][Math.floor((Math.random() * 3) + 1)],
     issueType : ['Bug', 'Improvement', 'Epic', 'Story'][Math.floor((Math.random() * 3) + 1)],
@@ -43,6 +45,8 @@ var ButtonActionFormatter = React.createClass({
     console.log("handleClick: ", this.props.value);
   }
 });
+
+var attribute = 'paddock';
 
 //Columns definition
 var columns = [
@@ -91,7 +95,9 @@ var Example = React.createClass({
     rowsCount={_rows.length}
     minHeight={500}
     enableRowSelect={true}
-    onRowSelect={RowSelectHander} />);
+    onRowSelect={RowSelectHander}
+    groupOnAttribute={attribute}
+    />);
   }
 });
 React.render(<Example />, mountNode);

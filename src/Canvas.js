@@ -29,7 +29,8 @@ var Canvas = React.createClass({
       PropTypes.array.isRequired
     ]),
     onRows: PropTypes.func,
-    columns: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired
+    columns: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
+    groupOnAttribute: PropTypes.string
   },
 
   render(): ?ReactElement {
@@ -37,6 +38,7 @@ var Canvas = React.createClass({
     var displayEnd = this.state.displayEnd;
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
+    var groupOnAttribute = this.props.groupOnAttribute;
 
     var rows = this.getRows(displayStart, displayEnd)
         .map((row, idx) => this.renderRow({
@@ -62,8 +64,8 @@ var Canvas = React.createClass({
         this.renderPlaceholder('bottom', (length - displayEnd) * rowHeight));
     }
 
-
-
+    var groupedRows = this.groupByRowAttribute(rows, this.props.groupOnAttribute);
+    var width = this.props.width;
 
     var style = {
       position: 'absolute',
@@ -76,17 +78,32 @@ var Canvas = React.createClass({
       transform: 'translate3d(0, 0, 0)'
     };
 
-
-    return (
-      <div
-        style={style}
-        onScroll={this.onScroll}
-        className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
-        <div style={{width: this.props.width, overflow: 'hidden'}}>
-          {rows}
+    if (groupedRows == undefined) {
+      return (
+        <div
+          style={style}
+          onScroll={this.onScroll}
+          className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
+          <div style={{width: this.props.width, overflow: 'hidden'}}>
+            {rows}
+          </div>
         </div>
-      </div>
-    );
+      )
+    } else {
+      return (
+        <div
+          style={style}
+          onScroll={this.onScroll}
+          className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
+          {Object.keys(groupedRows).map(function(field){
+            return (<div style={{width: {width}, overflow: 'hidden'}}>
+            <p>{field}</p>
+            {groupedRows[field]}
+            </div>)
+          })}
+        </div>
+      )
+    }
   },
 
   renderRow(props: any) {
@@ -97,6 +114,21 @@ var Canvas = React.createClass({
     else if (React.isValidElement(this.props.rowRenderer)) {
       return cloneWithProps(this.props.rowRenderer, props);
     }
+  },
+
+  groupByRowAttribute(rows: any, attribute: any) {
+   var res = {};
+
+   for (var i = 0; i < rows.length; ++i) {
+     var rowElt = rows[i];
+     var row = rowElt.props.row;
+     if (typeof(row) === "undefined") continue;
+     if (typeof(row[attribute]) === "undefined") return;
+     var key = row[attribute].toString();
+     if (typeof(res[key]) === "undefined") res[key] = [];
+     res[key].push(rowElt);
+   }
+   return res;
   },
 
   renderPlaceholder(key: string, height: number): ?ReactElement {
