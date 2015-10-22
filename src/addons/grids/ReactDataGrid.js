@@ -544,8 +544,7 @@ var ReactDataGrid = React.createClass({
   },
 
   clearSelectedRows() {
-    this.setState({selectedRows : getInitialSelectedRows()});
-    this.handleRowSelectPropagation([]);
+    this.setState({selectedRows : this.getInitialSelectedRows()});
   }
 });
 
