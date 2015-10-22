@@ -14,7 +14,7 @@ var _rows = [];
 for (var i = 1; i < 100; i++) {
   _rows.push({
     id: i,
-    property : ["And's Farm", 'Grow Joe', 'Grow Moe'][Math.floor((Math.random() * 3) + 1)],
+    property : ["And's Farm", 'Grow Joe', 'Grow Moe'][Math.floor((Math.random() * 3))],
     paddock : 'Field ' + Math.floor((Math.random() * 100) + 1),
     task: 'Task ' + i,
     priority : ['Critical', 'High', 'Medium', 'Low'][Math.floor((Math.random() * 3) + 1)],

@@ -55,6 +55,9 @@ var Canvas = React.createClass({
 
     this._currentRowsLength = rows.length;
 
+    var groupedRows = this.groupByRowAttributes(['property','paddock'], rows);
+    debugger;
+
     if (displayStart > 0) {
       rows.unshift(this.renderPlaceholder('top', displayStart * rowHeight));
     }
@@ -64,7 +67,6 @@ var Canvas = React.createClass({
         this.renderPlaceholder('bottom', (length - displayEnd) * rowHeight));
     }
 
-    var groupedRows = this.groupByRowAttribute(rows, this.props.groupOnAttribute);
     var width = this.props.width;
 
     var style = {
@@ -116,19 +118,27 @@ var Canvas = React.createClass({
     }
   },
 
-  groupByRowAttribute(rows: any, attribute: any) {
-   var res = {};
+  groupByRowAttributes(attributes: any, rows: any) {
+    var res = {};
+    var attribute = attributes.shift();
+    if (attribute == undefined) return rows;
 
-   for (var i = 0; i < rows.length; ++i) {
-     var rowElt = rows[i];
-     var row = rowElt.props.row;
-     if (typeof(row) === "undefined") continue;
-     if (typeof(row[attribute]) === "undefined") return;
-     var key = row[attribute].toString();
-     if (typeof(res[key]) === "undefined") res[key] = [];
-     res[key].push(rowElt);
-   }
-   return res;
+    for (var i = 0; i < rows.length; i++) {
+      var rowElt = rows[i];
+      var row = rowElt.props.row;
+      if (typeof(row) === "undefined") continue;
+      if (typeof(row[attribute]) === "undefined") return;
+
+      var key = row[attribute].toString();
+      if (typeof(res[key]) === "undefined") res[key] = [];
+      res[key].push(rowElt);
+    }
+
+    Object.keys(res).map(function(property){
+      res[property] = this.groupByRowAttributes(attributes.slice(), res[property]);
+    }, this);
+
+    return res;
   },
 
   renderPlaceholder(key: string, height: number): ?ReactElement {
@@ -136,7 +146,7 @@ var Canvas = React.createClass({
       <div key={key} style={{height: height}}>
         {this.props.columns.map(
           (column, idx) => <div style={{width: column.width}} key={idx} />
-		)}
+        )}
       </div>
     );
   },
