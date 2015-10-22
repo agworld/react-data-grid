@@ -541,8 +541,12 @@ var ReactDataGrid = React.createClass({
   handleTerminateDrag(){
     if(!this.dragEnabled()) { return; }
       this.setState({dragged: null});
-  }
+  },
 
+  clearSelectedRows() {
+    this.setState({selectedRows : getInitialSelectedRows()});
+    this.handleRowSelectPropagation([]);
+  }
 });
 
 
