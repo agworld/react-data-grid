@@ -56,7 +56,6 @@ var Canvas = React.createClass({
     this._currentRowsLength = rows.length;
 
     var groupedRows = this.groupByRowAttributes(['property','paddock'], rows);
-    debugger;
 
     if (displayStart > 0) {
       rows.unshift(this.renderPlaceholder('top', displayStart * rowHeight));
