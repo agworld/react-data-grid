@@ -13,7 +13,6 @@ var emptyFunction   = require('react/lib/emptyFunction');
 var ScrollShim      = require('./ScrollShim');
 var Row             = require('./Row');
 var ExcelColumn     = require('./addons/grids/ExcelColumn');
-
 var Canvas = React.createClass({
   mixins: [ScrollShim],
 
@@ -30,7 +29,7 @@ var Canvas = React.createClass({
     ]),
     onRows: PropTypes.func,
     columns: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
-    groupOnAttribute: PropTypes.string
+    groupOnAttribute: PropTypes.array
   },
 
   render(): ?ReactElement {
@@ -66,8 +65,6 @@ var Canvas = React.createClass({
         this.renderPlaceholder('bottom', (length - displayEnd) * rowHeight));
     }
 
-    var width = this.props.width;
-
     var style = {
       position: 'absolute',
       top: 0,
@@ -79,31 +76,30 @@ var Canvas = React.createClass({
       transform: 'translate3d(0, 0, 0)'
     };
 
-    if (groupedRows == undefined) {
-      return (
-        <div
-          style={style}
-          onScroll={this.onScroll}
-          className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
-          <div style={{width: this.props.width, overflow: 'hidden'}}>
-            {rows}
-          </div>
+    return (
+      <div
+        style={style}
+        onScroll={this.onScroll}
+        className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
+        <div style={{width: this.props.width, overflow: 'hidden'}}>
+          {this.renderGroupedRows(groupedRows)}
         </div>
-      )
-    } else {
+      </div>
+    )
+  },
+
+  renderGroupedRows(groupedRows) {
+    if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
       return (
-        <div
-          style={style}
-          onScroll={this.onScroll}
-          className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
-          {Object.keys(groupedRows).map(function(field){
-            return (<div style={{width: {width}, overflow: 'hidden'}}>
+        Object.keys(groupedRows).map(function(field){
+          return (<div>
             <p>{field}</p>
-            {groupedRows[field]}
-            </div>)
-          })}
-        </div>
-      )
+            {this.renderGroupedRows(groupedRows[field])}
+          </div>)
+        }, this)
+      );
+    } else {
+      return groupedRows;
     }
   },
 

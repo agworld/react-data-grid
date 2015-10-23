@@ -30,7 +30,7 @@ var Viewport = React.createClass({
     onRows: PropTypes.func,
     onScroll: PropTypes.func,
     minHeight : PropTypes.number,
-    groupOnAttribute: PropTypes.string
+    groupOnAttribute: PropTypes.array
   },
   render(): ?ReactElement {
     var style = {

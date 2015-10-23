@@ -46,8 +46,6 @@ var ButtonActionFormatter = React.createClass({
   }
 });
 
-var attribute = 'paddock';
-
 //Columns definition
 var columns = [
 {
@@ -86,6 +84,14 @@ var columns = [
   sortable: true
 }
 ]
+
+// Pass an array of attributes you want the rows to be grouped by
+// i.e:
+// ['property', 'paddock']
+// Will group the rows by their property attribute
+// And then will group the rows within the property by paddock attribute
+// Can group like this at many levels as this uses recursivity
+var attribute = ['property','paddock'];
 
 var Example = React.createClass({
   render: function() {

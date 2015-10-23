@@ -34,7 +34,7 @@ var Grid = React.createClass({
     onViewportDragStart : PropTypes.func.isRequired,
     onViewportDragEnd : PropTypes.func.isRequired,
     onViewportDoubleClick : PropTypes.func.isRequired,
-    groupOnAttribute: PropTypes.string
+    groupOnAttribute: PropTypes.array
   },
 
   mixins: [
