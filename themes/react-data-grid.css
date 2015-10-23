@@ -407,3 +407,17 @@ textarea.react-autocomplete-Autocomplete__search {
 .react-grid-Cell.readonly {
   background-color : black;
 }
+
+.react-grid-GroupHeader {
+  height: 35px;
+  padding: 7px;
+}
+
+.react-grid-GroupHeader .group-value {
+  font-weight: bold;
+}
+
+.react-grid-GroupHeader .other-values {
+  float: right;
+  color: gray;
+}
