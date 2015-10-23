@@ -11,6 +11,7 @@ var cloneWithProps  = require('react/lib/cloneWithProps');
 var shallowEqual    = require('react/lib//shallowEqual');
 var emptyFunction   = require('react/lib/emptyFunction');
 var ScrollShim      = require('./ScrollShim');
+var GroupHeader     = require('./GroupHeader');
 var Row             = require('./Row');
 var ExcelColumn     = require('./addons/grids/ExcelColumn');
 var Canvas = React.createClass({
@@ -93,7 +94,7 @@ var Canvas = React.createClass({
       return (
         Object.keys(groupedRows).map(function(field){
           return (<div>
-            <p>{field}</p>
+            <GroupHeader groupName="paddock" groupValue={field} otherValues={{}}/>
             {this.renderGroupedRows(groupedRows[field])}
           </div>)
         }, this)
