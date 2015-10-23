@@ -54,7 +54,7 @@ var Canvas = React.createClass({
 
     this._currentRowsLength = rows.length;
 
-    var groupedRows = this.groupByRowAttributes(['property','paddock'], rows);
+    var groupedRows = this.groupByRowAttributes(groupOnAttribute, rows);
 
     if (displayStart > 0) {
       rows.unshift(this.renderPlaceholder('top', displayStart * rowHeight));
@@ -113,8 +113,10 @@ var Canvas = React.createClass({
     }
   },
 
-  groupByRowAttributes(attributes: any, rows: any) {
+  groupByRowAttributes(attrs: any, rows: any) {
+    if (attrs instanceof Array == false) return rows;
     var res = {};
+    var attributes = attrs.slice()
     var attribute = attributes.shift();
     if (attribute == undefined) return rows;
 
@@ -130,7 +132,7 @@ var Canvas = React.createClass({
     }
 
     Object.keys(res).map(function(property){
-      res[property] = this.groupByRowAttributes(attributes.slice(), res[property]);
+      res[property] = this.groupByRowAttributes(attributes, res[property]);
     }, this);
 
     return res;
