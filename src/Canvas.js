@@ -3,7 +3,6 @@
  * @jsx React.DOM
  */
 "use strict";
-
 var React           = require('react');
 var joinClasses     = require('classnames');
 var PropTypes       = React.PropTypes;
@@ -92,10 +91,10 @@ var Canvas = React.createClass({
   renderGroupedRows(groupedRows) {
     if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
       return (
-        Object.keys(groupedRows).map(function(field){
+        Object.keys(groupedRows).map(function(groupName){
           return (<div>
-            <GroupHeader groupName="paddock" groupValue={field} otherValues={{}}/>
-            {this.renderGroupedRows(groupedRows[field])}
+            {groupedRows[groupName]['groupHeaderDisplay']}
+            {this.renderGroupedRows(groupedRows[groupName]['rows'])}
           </div>)
         }, this)
       );
@@ -115,28 +114,40 @@ var Canvas = React.createClass({
   },
 
   groupByRowAttributes(attrs: any, rows: any) {
-    if (attrs instanceof Array == false) return rows;
-    var res = {};
+    if ((attrs instanceof Array == false) || !attrs.length > 0) return rows;
+    var groupedRows = {};
     var attributes = attrs.slice()
     var attribute = attributes.shift();
-    if (attribute == undefined) return rows;
 
     for (var i = 0; i < rows.length; i++) {
       var rowElt = rows[i];
       var row = rowElt.props.row;
-      if (typeof(row) === "undefined") continue;
-      if (typeof(row[attribute]) === "undefined") return;
+      if (typeof(row) === 'undefined') continue;
 
-      var key = row[attribute].toString();
-      if (typeof(res[key]) === "undefined") res[key] = [];
-      res[key].push(rowElt);
+      var attribute_name, attribute_value;
+      switch (typeof(attribute)){
+        case 'function':
+          var reactComponent = React.createElement(attribute, {row: row});
+          attribute_name = row[reactComponent.props.name.toString()];
+          attribute_value = reactComponent;
+          break;
+        case 'string':
+          attribute_name = row[attribute];
+          attribute_value = React.createElement('div', {className: 'groupName'}, attribute_name.toString());
+          break;
+        default:
+          if (row[attribute] == 'undefined') return;
+      }
+
+      if (typeof(groupedRows[attribute_name]) === "undefined") groupedRows[attribute_name] = {groupHeaderDisplay: attribute_value, rows: []};
+      groupedRows[attribute_name]['rows'].push(rowElt);
     }
 
-    Object.keys(res).map(function(property){
-      res[property] = this.groupByRowAttributes(attributes, res[property]);
+    Object.keys(groupedRows).map(function(groupName){
+      groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
     }, this);
 
-    return res;
+    return groupedRows;
   },
 
   renderPlaceholder(key: string, height: number): ?ReactElement {

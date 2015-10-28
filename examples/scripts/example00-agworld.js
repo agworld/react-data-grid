@@ -24,7 +24,6 @@ for (var i = 1; i < 100; i++) {
   });
 }
 
-
 //function to retrieve a row for a given index
 var rowGetter = function(i){
   return _rows[i];
@@ -85,17 +84,62 @@ var columns = [
 }
 ]
 
+
+// This component groups the rows by using the name property (this.props.name set in getDefaultProps)
+// You can customize the rendering of this group title by using the getValueFromRow() within the render() method.
+var PropertyGroupTitleComponentRow = React.createClass({
+    propTypes: {
+      name: React.PropTypes.string,
+      row: React.PropTypes.object
+    },
+    getDefaultProps: function() {
+      //name: Mandatory field that specify on what data of the row this should be group on
+      return {
+        name: 'property',
+      };
+    },
+    // Mandatory method that get the row later on when the table is displayed
+    getValueFromRow: function(){
+      return this.props.row[this.props.name];
+    },
+    render: function() {
+      var value = this.getValueFromRow();
+      return <div class='groupName'>Hello {value}</div>;
+    }
+});
+
 // Pass an array of attributes you want the rows to be grouped by
 // i.e:
-// ['property', 'paddock']
-// Will group the rows by their property attribute
-// And then will group the rows within the property by paddock attribute
-// Can group like this at many levels as this uses recursivity
-var attribute = ['property','paddock'];
+// [ReactComponentThatGroupAndCustomRender, 'string representing an attribute to group the rows on']
+// This array can group 'in order' with as many levels as this uses recursivity
+// In case of a string passed then the group title will be a div with the class='groupName'
+// In case of a Reactcomponent passed then the rendering is customized. See above.
+var attribute = [PropertyGroupTitleComponentRow, 'paddock'];
 
 var Example = React.createClass({
+
+  getInitialState: function(){
+    var originalRows = _rows;
+    var rows = originalRows.slice(0);
+    //store the original rows array, and make a copy that can be used for modifying eg.filtering, sorting
+    return {originalRows : originalRows, rows : rows};
+  },
+
+  handleGridSort: function(sortColumn, sortDirection){
+    var comparer = function(a, b) {
+      if(sortDirection === 'ASC'){
+        return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
+      }else if(sortDirection === 'DESC'){
+        return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
+      }
+    }
+    var rows = sortDirection === 'NONE' ? this.state.originalRows.slice(0) : this.state.rows.sort(comparer);
+    this.setState({rows : rows});
+  },
+
   render: function() {
     return  (<ReactDataGrid
+    onGridSort={this.handleGridSort}
     columns={columns}
     rowGetter={rowGetter}
     rowsCount={_rows.length}
