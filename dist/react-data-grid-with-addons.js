@@ -113,7 +113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onCellsDragged: React.PropTypes.func,
 	    onAddFilter: React.PropTypes.func,
 	    onRowSelect: React.PropTypes.func,
-	    groupOnAttribute: React.PropTypes.string
+	    groupOnAttribute: React.PropTypes.array
 	  },
 
 	  mixins: [ColumnMetricsMixin, DOMMetrics.MetricsComputatorMixin, KeyboardHandlerMixin],
@@ -879,7 +879,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onViewportDragStart: PropTypes.func.isRequired,
 	    onViewportDragEnd: PropTypes.func.isRequired,
 	    onViewportDoubleClick: PropTypes.func.isRequired,
-	    groupOnAttribute: PropTypes.string
+	    groupOnAttribute: PropTypes.array
 	  },
 
 	  mixins: [GridScrollMixin, DOMMetrics.MetricsComputatorMixin],
@@ -3032,7 +3032,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onRows: PropTypes.func,
 	    onScroll: PropTypes.func,
 	    minHeight: PropTypes.number,
-	    groupOnAttribute: PropTypes.string
+	    groupOnAttribute: PropTypes.array
 	  },
 	  render: function render() {
 	    var style = {
@@ -3113,7 +3113,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ScrollShim = __webpack_require__(53);
 	var Row = __webpack_require__(54);
 	var ExcelColumn = __webpack_require__(41);
-
 	var Canvas = React.createClass({
 	  displayName: 'Canvas',
 
@@ -3129,7 +3128,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    rowGetter: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.array.isRequired]),
 	    onRows: PropTypes.func,
 	    columns: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
-	    groupOnAttribute: PropTypes.string
+	    groupOnAttribute: PropTypes.array
 	  },
 
 	  render: function render() {
@@ -3157,7 +3156,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this._currentRowsLength = rows.length;
 
-	    var groupedRows = this.groupByRowAttributes(['property', 'paddock'], rows);
+	    var groupedRows = this.groupByRowAttributes(groupOnAttribute, rows);
 
 	    if (displayStart > 0) {
 	      rows.unshift(this.renderPlaceholder('top', displayStart * rowHeight));
@@ -3166,8 +3165,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (length - displayEnd > 0) {
 	      rows.push(this.renderPlaceholder('bottom', (length - displayEnd) * rowHeight));
 	    }
-
-	    var width = this.props.width;
 
 	    var style = {
 	      position: 'absolute',
@@ -3180,39 +3177,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	      transform: 'translate3d(0, 0, 0)'
 	    };
 
-	    if (groupedRows == undefined) {
-	      return React.createElement(
+	    return React.createElement(
+	      'div',
+	      {
+	        style: style,
+	        onScroll: this.onScroll,
+	        className: joinClasses("react-grid-Canvas", this.props.className, { opaque: this.props.cellMetaData.selected && this.props.cellMetaData.selected.active }) },
+	      React.createElement(
 	        'div',
-	        {
-	          style: style,
-	          onScroll: this.onScroll,
-	          className: joinClasses("react-grid-Canvas", this.props.className, { opaque: this.props.cellMetaData.selected && this.props.cellMetaData.selected.active }) },
-	        React.createElement(
+	        { style: { width: this.props.width, overflow: 'hidden' } },
+	        this.renderGroupedRows(groupedRows)
+	      )
+	    );
+	  },
+
+	  renderGroupedRows: function renderGroupedRows(groupedRows) {
+	    if (typeof groupedRows === 'object' && groupedRows instanceof Array == false) {
+	      return _Object$keys(groupedRows).map(function (groupName) {
+	        return React.createElement(
 	          'div',
-	          { style: { width: this.props.width, overflow: 'hidden' } },
-	          rows
-	        )
-	      );
+	          null,
+	          groupedRows[groupName]['groupHeaderDisplay'],
+	          this.renderGroupedRows(groupedRows[groupName]['rows'])
+	        );
+	      }, this);
 	    } else {
-	      return React.createElement(
-	        'div',
-	        {
-	          style: style,
-	          onScroll: this.onScroll,
-	          className: joinClasses("react-grid-Canvas", this.props.className, { opaque: this.props.cellMetaData.selected && this.props.cellMetaData.selected.active }) },
-	        _Object$keys(groupedRows).map(function (field) {
-	          return React.createElement(
-	            'div',
-	            { style: { width: { width: width }, overflow: 'hidden' } },
-	            React.createElement(
-	              'p',
-	              null,
-	              field
-	            ),
-	            groupedRows[field]
-	          );
-	        })
-	      );
+	      return groupedRows;
 	    }
 	  },
 
@@ -3225,27 +3215,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  },
 
-	  groupByRowAttributes: function groupByRowAttributes(attributes, rows) {
-	    var res = {};
+	  groupByRowAttributes: function groupByRowAttributes(attrs, rows) {
+	    if (attrs instanceof Array == false || !attrs.length > 0) return rows;
+	    var groupedRows = {};
+	    var attributes = attrs.slice();
 	    var attribute = attributes.shift();
-	    if (attribute == undefined) return rows;
 
 	    for (var i = 0; i < rows.length; i++) {
 	      var rowElt = rows[i];
 	      var row = rowElt.props.row;
-	      if (typeof row === "undefined") continue;
-	      if (typeof row[attribute] === "undefined") return;
+	      if (typeof row === 'undefined') continue;
 
-	      var key = row[attribute].toString();
-	      if (typeof res[key] === "undefined") res[key] = [];
-	      res[key].push(rowElt);
+	      var attribute_name, attribute_value;
+	      switch (typeof attribute) {
+	        case 'function':
+	          var reactComponent = React.createElement(attribute, { row: row });
+	          attribute_name = row[reactComponent.props.name.toString()];
+	          attribute_value = reactComponent;
+	          break;
+	        case 'string':
+	          attribute_name = row[attribute];
+	          attribute_value = React.createElement('div', { className: 'groupName' }, attribute_name.toString());
+	          break;
+	        default:
+	          if (row[attribute] == 'undefined') return;
+	      }
+
+	      if (typeof groupedRows[attribute_name] === "undefined") groupedRows[attribute_name] = { groupHeaderDisplay: attribute_value, rows: [] };
+	      groupedRows[attribute_name]['rows'].push(rowElt);
 	    }
 
-	    _Object$keys(res).map(function (property) {
-	      res[property] = this.groupByRowAttributes(attributes.slice(), res[property]);
+	    _Object$keys(groupedRows).map(function (groupName) {
+	      groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
 	    }, this);
 
-	    return res;
+	    return groupedRows;
 	  },
 
 	  renderPlaceholder: function renderPlaceholder(key, height) {
