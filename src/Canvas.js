@@ -10,7 +10,6 @@ var cloneWithProps  = require('react/lib/cloneWithProps');
 var shallowEqual    = require('react/lib//shallowEqual');
 var emptyFunction   = require('react/lib/emptyFunction');
 var ScrollShim      = require('./ScrollShim');
-var GroupHeader     = require('./GroupHeader');
 var Row             = require('./Row');
 var ExcelColumn     = require('./addons/grids/ExcelColumn');
 var Canvas = React.createClass({
