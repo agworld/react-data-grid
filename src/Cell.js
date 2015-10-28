@@ -99,7 +99,8 @@ var Cell = React.createClass({
       value : this.props.value,
       column : this.props.column,
       rowIdx : this.props.rowIdx,
-      isExpanded : this.props.isExpanded
+      isExpanded : this.props.isExpanded,
+      rowData: this.props.rowData
     });
 
     return (

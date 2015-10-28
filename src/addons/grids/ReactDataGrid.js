@@ -73,7 +73,8 @@ var ReactDataGrid = React.createClass({
     onCellCopyPaste : React.PropTypes.func,
     onCellsDragged : React.PropTypes.func,
     onAddFilter : React.PropTypes.func,
-    onRowSelect : React.PropTypes.func
+    onRowSelect : React.PropTypes.func,
+    groupOnAttribute: React.PropTypes.array
   },
 
   mixins: [
@@ -540,8 +541,11 @@ var ReactDataGrid = React.createClass({
   handleTerminateDrag(){
     if(!this.dragEnabled()) { return; }
       this.setState({dragged: null});
-  }
+  },
 
+  clearSelectedRows() {
+    this.setState({selectedRows : this.getInitialSelectedRows()});
+  }
 });
 
 

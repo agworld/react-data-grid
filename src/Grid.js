@@ -33,7 +33,8 @@ var Grid = React.createClass({
     onViewportKeydown : PropTypes.func.isRequired,
     onViewportDragStart : PropTypes.func.isRequired,
     onViewportDragEnd : PropTypes.func.isRequired,
-    onViewportDoubleClick : PropTypes.func.isRequired
+    onViewportDoubleClick : PropTypes.func.isRequired,
+    groupOnAttribute: PropTypes.array
   },
 
   mixins: [
@@ -83,6 +84,7 @@ var Grid = React.createClass({
               cellMetaData={this.props.cellMetaData}
               rowOffsetHeight={this.props.rowOffsetHeight || this.props.rowHeight * headerRows.length}
               minHeight={this.props.minHeight}
+              groupOnAttribute={this.props.groupOnAttribute}
               />
           </div>
       </div>
