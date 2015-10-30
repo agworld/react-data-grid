@@ -53,10 +53,14 @@ module.exports = {
 
   getTotalWidth() {
     var totalWidth = 0;
-    if(this.isMounted()){
-      totalWidth = this.DOMMetrics.gridWidth();
+    if(this.props.width){
+      totalWidth = this.props.width;
     } else {
-      totalWidth = ColumnUtils.getSize(this.props.columns) * this.props.minColumnWidth;
+      if(this.isMounted()){
+        totalWidth = this.DOMMetrics.gridWidth();
+      } else {
+        totalWidth = ColumnUtils.getSize(this.props.columns) * this.props.minColumnWidth;
+      }
     }
     return totalWidth;
   },
