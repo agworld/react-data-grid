@@ -1,7 +1,6 @@
-
+var ReactGrid             = require('../build/react-data-grid');
 var QuickStartDescription = require('../components/QuickStartDescription')
 var ReactPlayground       = require('../assets/js/ReactPlayground');
-
 
 var SimpleExample = `
 //helper to generate a random date
@@ -10,26 +9,24 @@ function randomDate(start, end) {
 }
 
 //generate a fixed number of rows and set their properties
-var _rows = [];
-for (var i = 1; i < 100; i++) {
-  _rows.push({
-    id: i,
-    property : ["And's Farm", 'Grow Joe', 'Grow Moe'][Math.floor((Math.random() * 3))],
-    paddock : 'Field ' + Math.floor((Math.random() * 100) + 1),
-    task: 'Task ' + i,
-    priority : ['Critical', 'High', 'Medium', 'Low'][Math.floor((Math.random() * 3) + 1)],
-    issueType : ['Bug', 'Improvement', 'Epic', 'Story'][Math.floor((Math.random() * 3) + 1)],
-    startDate: randomDate(new Date(2015, 3, 1), new Date()),
-    completeDate: randomDate(new Date(), new Date(2016, 0, 1))
-  });
+function createRows(numberOfRows){
+  var _rows = [];
+  for (var i = 1; i < numberOfRows; i++) {
+    _rows.push({
+      id: i,
+      property : ["And's Farm", 'Grow Joe', 'Grow Moe'][Math.floor((Math.random() * 3))],
+      paddock : 'Field ' + Math.floor((Math.random() * 100) + 1),
+      task: 'Task ' + i,
+      priority : ['Critical', 'High', 'Medium', 'Low'][Math.floor((Math.random() * 3) + 1)],
+      issueType : ['Bug', 'Improvement', 'Epic', 'Story'][Math.floor((Math.random() * 3) + 1)],
+      startDate: randomDate(new Date(2015, 3, 1), new Date()),
+      completeDate: randomDate(new Date(), new Date(2016, 0, 1))
+    });
+  }
+  return _rows;
 }
 
-//function to retrieve a row for a given index
-var rowGetter = function(i){
-  return _rows[i];
-};
-
-var RowSelectHander=function(selectedRows){
+var RowSelectHander = function(selectedRows){
   console.log("Selected rows: ", selectedRows);
 }
 
@@ -55,31 +52,36 @@ var columns = [
 {
   key: 'task',
   name: 'Title',
+  editable : true,
   sortable: true
 },
 {
   key: 'priority',
   name: 'Priority',
+  editable : true,
   sortable: true
 },
 {
   key: 'issueType',
   name: 'Issue Type',
+  editable : true,
   sortable: true
 },
 {
-  key: 'id',
+  key: 'action',
   name: 'Action',
   formatter : ButtonActionFormatter
 },
 {
   key: 'startDate',
   name: 'Start Date',
+  editable : true,
   sortable: true
 },
 {
   key: 'completeDate',
   name: 'Expected Complete',
+  editable : true,
   sortable: true
 }
 ]
@@ -119,10 +121,22 @@ var attribute = [PropertyGroupTitleComponentRow, 'paddock'];
 var Example = React.createClass({
 
   getInitialState: function(){
-    var originalRows = _rows;
+    var originalRows = createRows(100);
     var rows = originalRows.slice(0);
     //store the original rows array, and make a copy that can be used for modifying eg.filtering, sorting
     return {originalRows : originalRows, rows : rows};
+  },
+
+  rowGetter : function(rowIdx){
+    return this.state.rows[rowIdx];
+  },
+
+  handleRowUpdated : function(e){
+    debugger;
+    //merge updated row with current row and rerender by setting state
+    var rows = this.state.rows;
+    Object.assign(rows[e.rowIdx], e.updated);
+    this.setState({rows: rows});
   },
 
   handleGridSort: function(sortColumn, sortDirection){
@@ -138,18 +152,20 @@ var Example = React.createClass({
   },
 
   render: function() {
-    return  (<ReactDataGrid
-    onGridSort={this.handleGridSort}
-    columns={columns}
-    rowGetter={rowGetter}
-    rowsCount={_rows.length}
-    minHeight={500}
-    enableRowSelect={true}
-    onRowSelect={RowSelectHander}
-    groupOnAttribute={attribute}
-    />);
+    return(<ReactDataGrid
+        columns={columns}
+        rowGetter={this.rowGetter}
+        rowsCount={this.state.rows.length}
+        minHeight={500}
+        groupOnAttribute={attribute}
+        enableCellSelect={true}
+        onRowUpdated={this.handleRowUpdated}
+        enableRowSelect={true}
+        onRowSelect={RowSelectHander}
+        onGridSort={this.handleGridSort} />);
   }
 });
+
 React.render(<Example />, mountNode);
 `;
 
