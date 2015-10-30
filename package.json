@@ -3,9 +3,10 @@
   "version": "0.13.11",
   "description": "Data grid for React",
   "main": "src/index.js",
+  "private": true,
   "scripts": {
     "test": "gulp test",
-    "prepublish": "gulp dist --release true",
+    "preinstall": "gulp dist --release true",
     "debug-test": "gulp test --debug true",
     "examples": "gulp"
   },
