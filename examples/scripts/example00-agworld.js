@@ -52,31 +52,37 @@ var columns = [
 {
   key: 'task',
   name: 'Title',
+  editable : true,
   sortable: true
 },
 {
   key: 'priority',
   name: 'Priority',
+  editable : true,
   sortable: true
 },
 {
   key: 'issueType',
   name: 'Issue Type',
+  editable : true,
   sortable: true
 },
 {
   key: 'id',
   name: 'Action',
+  editable : true,
   formatter : ButtonActionFormatter
 },
 {
   key: 'startDate',
   name: 'Start Date',
+  editable : true,
   sortable: true
 },
 {
   key: 'completeDate',
   name: 'Expected Complete',
+  editable : true,
   sortable: true
 }
 ]
@@ -122,8 +128,16 @@ var Example = React.createClass({
     return {originalRows : originalRows, rows : rows};
   },
 
-  rowGetter : function(i){
-    return this.state.rows[i];
+  rowGetter : function(rowIdx){
+    return this.state.rows[rowIdx];
+  },
+
+  handleRowUpdated : function(e){
+    debugger;
+    //merge updated row with current row and rerender by setting state
+    var rows = this.state.rows;
+    Object.assign(rows[e.rowIdx], e.updated);
+    this.setState({rows: rows});
   },
 
   handleGridSort: function(sortColumn, sortDirection){
@@ -139,15 +153,17 @@ var Example = React.createClass({
   },
 
   render: function() {
-    return  (<ReactDataGrid
-        onGridSort={this.handleGridSort}
+    return(<ReactDataGrid
         columns={columns}
         rowGetter={this.rowGetter}
         rowsCount={this.state.rows.length}
         minHeight={500}
+        groupOnAttribute={attribute}
+        enableCellSelect={true}
+        onRowUpdated={this.handleRowUpdated}
         enableRowSelect={true}
         onRowSelect={RowSelectHander}
-        groupOnAttribute={attribute} />);
+        onGridSort={this.handleGridSort} />);
   }
 });
 
