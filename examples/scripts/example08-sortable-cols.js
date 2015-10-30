@@ -84,7 +84,6 @@ var Example = React.createClass({
   },
 
   handleGridSort : function(sortColumn, sortDirection){
-
     var comparer = function(a, b) {
       if(sortDirection === 'ASC'){
         return (a[sortColumn] > b[sortColumn]) ? 1 : -1;

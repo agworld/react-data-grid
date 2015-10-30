@@ -68,9 +68,8 @@ var columns = [
   sortable: true
 },
 {
-  key: 'id',
+  key: 'action',
   name: 'Action',
-  editable : true,
   formatter : ButtonActionFormatter
 },
 {
