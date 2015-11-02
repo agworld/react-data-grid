@@ -448,7 +448,8 @@ var ReactDataGrid = React.createClass({
   // },
 
   onAfterAddRow:function(numberOfRows: number){
-    this.setState({selected : {idx : 1, rowIdx : numberOfRows - 2}});
+    // Unclear what this was supposed to do, at the time it only draws a blue rectangle aroung a cell
+    // this.setState({selected : {idx : 1, rowIdx : numberOfRows - 2}});
   },
 
   onToggleFilter(){

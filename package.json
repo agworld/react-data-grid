@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "test": "gulp test",
-    "preinstall": "gulp dist --release true",
+    "prepublish": "gulp dist --release true",
     "debug-test": "gulp test --debug true",
     "examples": "gulp"
   },
