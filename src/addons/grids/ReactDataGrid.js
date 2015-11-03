@@ -148,7 +148,7 @@ var ReactDataGrid = React.createClass({
     var gridWidth = this.props.width;
     if (gridWidth == null)
     {
-      gridWith = this.DOMMetrics.gridWidth();
+      gridWidth = this.DOMMetrics.gridWidth();
     }
     var containerWidth = gridWidth + this.state.scrollOffset;
 

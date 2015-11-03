@@ -12,6 +12,8 @@ var emptyFunction   = require('react/lib/emptyFunction');
 var ScrollShim      = require('./ScrollShim');
 var Row             = require('./Row');
 var ExcelColumn     = require('./addons/grids/ExcelColumn');
+var RowContainer    = require('./RowContainer');
+
 var Canvas = React.createClass({
   mixins: [ScrollShim],
 
@@ -92,7 +94,11 @@ var Canvas = React.createClass({
       return (
         Object.keys(groupedRows).map(function(groupName){
           return (<div>
-            {groupedRows[groupName]['groupHeaderDisplay']}
+            <RowContainer
+              height={this.props.rowHeight}
+              width={this.props.totalWidth}
+              renderer={groupedRows[groupName]['groupHeaderDisplay']}
+            />
             {this.renderGroupedRows(groupedRows[groupName]['rows'])}
           </div>)
         }, this)
