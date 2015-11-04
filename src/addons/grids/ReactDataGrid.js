@@ -150,7 +150,7 @@ var ReactDataGrid = React.createClass({
     {
       gridWidth = this.DOMMetrics.gridWidth();
     }
-    var containerWidth = gridWidth + this.state.scrollOffset;
+    var containerWidth = gridWidth - this.state.scrollOffset;
 
     return(
       <div className="react-grid-Container" style={{width:containerWidth}}>
