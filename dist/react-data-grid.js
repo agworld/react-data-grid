@@ -86,16 +86,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Row = __webpack_require__(54);
 	var ExcelColumn = __webpack_require__(41);
 	var KeyboardHandlerMixin = __webpack_require__(57);
-	var CheckboxEditor = __webpack_require__(85);
-	var FilterableHeaderCell = __webpack_require__(86);
+	var CheckboxEditor = __webpack_require__(86);
+	var FilterableHeaderCell = __webpack_require__(87);
 	var cloneWithProps = __webpack_require__(29);
-	var DOMMetrics = __webpack_require__(82);
-	var ColumnMetricsMixin = __webpack_require__(87);
-	var RowUtils = __webpack_require__(89);
+	var DOMMetrics = __webpack_require__(83);
+	var ColumnMetricsMixin = __webpack_require__(88);
+	var RowUtils = __webpack_require__(90);
 	var ColumnUtils = __webpack_require__(25);
 
 	if (!_Object$assign) {
-	  Object.assign = __webpack_require__(88);
+	  Object.assign = __webpack_require__(89);
 	}
 
 	var ReactDataGrid = React.createClass({
@@ -182,9 +182,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var toolbar = this.renderToolbar();
 	    var gridWidth = this.props.width;
 	    if (gridWidth == null) {
-	      gridWith = this.DOMMetrics.gridWidth();
+	      gridWidth = this.DOMMetrics.gridWidth();
 	    }
-	    var containerWidth = gridWidth + this.state.scrollOffset;
+	    var containerWidth = gridWidth - this.state.scrollOffset;
 
 	    return React.createElement(
 	      'div',
@@ -863,8 +863,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Header = __webpack_require__(20);
 	var Viewport = __webpack_require__(47);
 	var ExcelColumn = __webpack_require__(41);
-	var GridScrollMixin = __webpack_require__(84);
-	var DOMMetrics = __webpack_require__(82);
+	var GridScrollMixin = __webpack_require__(85);
+	var DOMMetrics = __webpack_require__(83);
 
 	var Grid = React.createClass({
 	  displayName: 'Grid',
@@ -3020,7 +3020,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Canvas = __webpack_require__(48);
 	var PropTypes = React.PropTypes;
 
-	var ViewportScroll = __webpack_require__(81);
+	var ViewportScroll = __webpack_require__(82);
 
 	var Viewport = React.createClass({
 	  displayName: 'Viewport',
@@ -3121,6 +3121,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ScrollShim = __webpack_require__(53);
 	var Row = __webpack_require__(54);
 	var ExcelColumn = __webpack_require__(41);
+	var RowContainer = __webpack_require__(81);
+
 	var Canvas = React.createClass({
 	  displayName: 'Canvas',
 
@@ -3205,7 +3207,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return React.createElement(
 	          'div',
 	          null,
-	          groupedRows[groupName]['groupHeaderDisplay'],
+	          React.createElement(RowContainer, {
+	            height: this.props.rowHeight,
+	            width: this.props.totalWidth,
+	            renderer: groupedRows[groupName]['groupHeaderDisplay']
+	          }),
 	          this.renderGroupedRows(groupedRows[groupName]['rows'])
 	        );
 	      }, this);
@@ -4784,13 +4790,51 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
+	
+	/**
+	 * @jsx React.DOM
+
+
+	 */
+	'use strict';
+
+	var React = __webpack_require__(18);
+
+	var RowContainer = React.createClass({
+	  displayName: 'RowContainer',
+
+	  propTypes: {
+	    height: React.PropTypes.number.isRequired,
+	    width: React.PropTypes.number.isRequired,
+	    renderer: React.PropTypes.func.isRequired
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { style: { height: this.props.height, overflow: 'hidden' } },
+	      React.createElement(
+	        'div',
+	        { style: { position: 'absolute', left: 0, width: this.props.width } },
+	        this.props.renderer
+	      )
+	    );
+	  }
+	});
+
+	module.exports = RowContainer;
+
+/***/ },
+/* 82 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* TODO mixins */
 
 	'use strict';
 
 	var React = __webpack_require__(18);
-	var DOMMetrics = __webpack_require__(82);
-	var getWindowSize = __webpack_require__(83);
+	var DOMMetrics = __webpack_require__(83);
+	var getWindowSize = __webpack_require__(84);
 
 	var PropTypes = React.PropTypes;
 	var min = Math.min;
@@ -4875,7 +4919,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 82 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* TODO mixin and invarient splat */
@@ -5044,7 +5088,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 83 */
+/* 84 */
 /***/ function(module, exports) {
 
 	
@@ -5081,7 +5125,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = getWindowSize;
 
 /***/ },
-/* 84 */
+/* 85 */
 /***/ function(module, exports) {
 
 	/* TODO mixins */
@@ -5122,7 +5166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 85 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -5158,7 +5202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = CheckboxEditor;
 
 /***/ },
-/* 86 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -5215,7 +5259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = FilterableHeaderCell;
 
 /***/ },
-/* 87 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* TODO mixins */
@@ -5225,8 +5269,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _classCallCheck = __webpack_require__(42)['default'];
 
 	var ColumnMetrics = __webpack_require__(23);
-	var DOMMetrics = __webpack_require__(82);
-	Object.assign = __webpack_require__(88);
+	var DOMMetrics = __webpack_require__(83);
+	Object.assign = __webpack_require__(89);
 	var PropTypes = __webpack_require__(18).PropTypes;
 	var ColumnUtils = __webpack_require__(25);
 	var React = __webpack_require__(18);
@@ -5327,7 +5371,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 88 */
+/* 89 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5359,7 +5403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 89 */
+/* 90 */
 /***/ function(module, exports) {
 
 	'use strict';
