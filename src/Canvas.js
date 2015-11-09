@@ -92,11 +92,14 @@ var Canvas = React.createClass({
   renderGroupedRows(groupedRows) {
     if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
       return (
-        Object.keys(groupedRows).map(function(groupName){
+        Object.keys(groupedRows)
+          .sort(function (l,r) { 
+            return l.localeCompare(r);
+          }).map(function(groupName){
           return (<div>
             <RowContainer
               height={this.props.rowHeight}
-              width={this.props.totalWidth}
+              width={this.props.width}
               renderer={groupedRows[groupName]['groupHeaderDisplay']}
             />
             {this.renderGroupedRows(groupedRows[groupName]['rows'])}
