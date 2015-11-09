@@ -3203,13 +3203,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  renderGroupedRows: function renderGroupedRows(groupedRows) {
 	    if (typeof groupedRows === 'object' && groupedRows instanceof Array == false) {
-	      return _Object$keys(groupedRows).map(function (groupName) {
+	      return _Object$keys(groupedRows).sort(function (l, r) {
+	        return l.localeCompare(r);
+	      }).map(function (groupName) {
 	        return React.createElement(
 	          'div',
 	          null,
 	          React.createElement(RowContainer, {
 	            height: this.props.rowHeight,
-	            width: this.props.totalWidth,
+	            width: this.props.width,
 	            renderer: groupedRows[groupName]['groupHeaderDisplay']
 	          }),
 	          this.renderGroupedRows(groupedRows[groupName]['rows'])
