@@ -85,6 +85,10 @@ var Grid = React.createClass({
               rowOffsetHeight={this.props.rowOffsetHeight || this.props.rowHeight * headerRows.length}
               minHeight={this.props.minHeight}
               groupOnAttribute={this.props.groupOnAttribute}
+              sortColumn={this.props.sortColumn}
+              sortDirection={this.props.sortDirection}
+              columns={this.props.columnMetrics.columns}
+              onGridSort={this.props.onGridSort}
               />
           </div>
       </div>

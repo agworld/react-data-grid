@@ -477,7 +477,7 @@ var ReactDataGrid = React.createClass({
 
   handleSort: function(columnKey: string, direction: SortType) {
     this.setState({sortDirection: direction, sortColumn: columnKey}, function(){
-      this.props.onGridSort(columnKey, direction);
+      //this.props.onGridSort(columnKey, direction);
     });
   },
 

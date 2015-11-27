@@ -32,7 +32,111 @@ var Viewport = React.createClass({
     minHeight : PropTypes.number,
     groupOnAttribute: PropTypes.array
   },
+
+  getDefaultProps: function() {
+    var defaultGridSort = function(sortColumn, sortDirection, rows){
+      var comparer = function(a, b) {
+        if(sortDirection === 'ASC'){
+          return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
+        }else if(sortDirection === 'DESC'){
+          return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
+        }
+      }
+      return rows.sort(comparer);
+    };
+    return {
+      onGridSort: defaultGridSort
+    };
+  },
+
+  componentWillMount: function() {
+    this.getGroupedRows();
+  },
+
+  getInitialState: function() {
+      return {
+        groupedRows: [],
+      };
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+
+  },
+
+  getGroupedRows: function() {
+    debugger;
+    var allRows = this.getAllRows();
+    var groupedRows = this.groupByRowAttributes(this.props.groupOnAttribute, allRows);
+    this.setState({groupedRows: groupedRows});
+  },
+
+  sortRows: function(sortColumn, sortDirection , rows){
+    // if(!sortColumn) { return function(rows) {return rows;}}
+    // var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
+    // var genericSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
+    // var sort = genericSort.bind(null, sortColumn, sortDirection);
+    // return sort;
+    if(!sortColumn || !rows) return rows;
+    var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
+    var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
+    return onSort(sortColumn, sortDirection, rows);
+  },
+
+
+
+  groupByRowAttributes: function(attrs: any, rows: any) {
+    if ((attrs instanceof Array == false) || !attrs.length > 0) {
+      return this.sortRows(this.props.sortColumn, this.props.sortDirection, rows);
+    }
+    var groupedRows = {};
+    var attributes = attrs.slice()
+    var attribute = attributes.shift();
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (typeof(row) === 'undefined') continue;
+
+      var attribute_name, attribute_value;
+      switch (typeof(attribute)){
+        case 'function':
+          var reactComponent = React.createElement(attribute, {row: row});
+          attribute_name = row[reactComponent.props.name.toString()];
+          attribute_value = reactComponent;
+          break;
+        case 'string':
+          attribute_name = row[attribute];
+          attribute_value = React.createElement('div', {className: 'groupName'}, attribute_name.toString());
+          break;
+        default:
+          if (row[attribulite] == 'undefined') return;
+      }
+
+      if (typeof(groupedRows[attribute_name]) === "undefined") groupedRows[attribute_name] = {groupHeaderDisplay: attribute_value, rows: []};
+      groupedRows[attribute_name]['rows'].push(row);
+    }
+
+    Object.keys(groupedRows).map(function(groupName){
+      groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
+      //TODO sort each group here
+    }, this);
+
+    return groupedRows;
+  },
+
+  getAllRows: function() {
+    if (Array.isArray(this.props.rowGetter)) {
+      return this.props.rowGetter.slice(0, this.props.rowsCount);
+    } else {
+      var rows = [];
+      for (var i = 0; i < this.props.rowsCount; i++){
+        rows.push(this.props.rowGetter(i));
+      }
+      return rows;
+    }
+  },
+
   render(): ?ReactElement {
+
     var style = {
       padding: 0,
       bottom: 0,
@@ -42,6 +146,7 @@ var Viewport = React.createClass({
       position: 'absolute',
       top: this.props.rowOffsetHeight
     };
+
     return (
       <div
         className="react-grid-Viewport"
@@ -65,7 +170,9 @@ var Viewport = React.createClass({
           rowHeight={this.props.rowHeight}
           onScroll={this.onScroll}
           onRows={this.props.onRows}
+          sortRows={this.sortRows(this.props.sortColumn, this.props.sortDirection)}
           groupOnAttribute={this.props.groupOnAttribute}
+          groupedRows={this.state.groupedRows}
           />
       </div>
     );

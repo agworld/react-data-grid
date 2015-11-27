@@ -69,11 +69,10 @@ var columns = [
 }
 ]
 
-
 var Example = React.createClass({
 
   getInitialState : function(){
-    var originalRows = createRows(1000);
+    var originalRows = createRows(100);
     var rows = originalRows.slice(0);
     //store the original rows array, and make a copy that can be used for modifying eg.filtering, sorting
     return {originalRows : originalRows, rows : rows};
@@ -96,14 +95,15 @@ var Example = React.createClass({
   },
 
   render:function(){
+
     return(
       <ReactDataGrid
-        onGridSort={this.handleGridSort}
         columns={columns}
         rowGetter={this.rowGetter}
         rowsCount={this.state.rows.length}
         minHeight={500}
-        onRowUpdated={this.handleRowUpdated} />
+        groupOnAttribute={["priority"]}
+        onRowUpdated={this.handleRowUpdated}/>
     )
   }
 

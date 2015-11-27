@@ -34,8 +34,8 @@ var Canvas = React.createClass({
   },
 
   render(): ?ReactElement {
-    var displayStart = this.state.displayStart;
-    var displayEnd = this.state.displayEnd;
+    var displayStart = this.props.displayStart;
+    var displayEnd = this.props.displayEnd;
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
     var groupOnAttribute = this.props.groupOnAttribute;
@@ -77,6 +77,8 @@ var Canvas = React.createClass({
       transform: 'translate3d(0, 0, 0)'
     };
 
+    var groupedRows = this.props.groupedRows;
+
     return (
       <div
         style={style}
@@ -91,9 +93,10 @@ var Canvas = React.createClass({
 
   renderGroupedRows(groupedRows) {
     if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
+      var that = this;
       return (
         Object.keys(groupedRows)
-          .sort(function (l,r) { 
+          .sort(function (l,r) {
             return l.localeCompare(r);
           }).map(function(groupName){
           return (<div>
@@ -104,10 +107,23 @@ var Canvas = React.createClass({
             />
             {this.renderGroupedRows(groupedRows[groupName]['rows'])}
           </div>)
-        }, this)
+        },this)
       );
     } else {
-      return groupedRows;
+      var displayStart = this.props.displayStart;
+      var rowHeight = this.props.rowHeight;
+      return groupedRows.map((row, idx) =>
+        this.renderRow({
+          key: displayStart + idx,
+          ref: idx,
+          idx: displayStart + idx,
+          row: row,
+          height: rowHeight,
+          columns: this.props.columns,
+          isSelected : this.isRowSelected(displayStart + idx),
+          expandedRows : this.props.expandedRows,
+          cellMetaData : this.props.cellMetaData
+        }));
     }
   },
 
@@ -153,8 +169,9 @@ var Canvas = React.createClass({
 
     Object.keys(groupedRows).map(function(groupName){
       groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
+      //TODO sort each group here
     }, this);
-
+    var x;
     return groupedRows;
   },
 
