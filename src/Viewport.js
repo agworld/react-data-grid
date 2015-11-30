@@ -70,6 +70,10 @@ var Viewport = React.createClass({
     this.setState({rows: rows});
   },
 
+  getRows: function(start, end) {
+    return this.state.rows.slice(start, end);
+  },
+
   flattenGroupedRows: function(groupedRows, flattenedRows) {
     if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
         Object.keys(groupedRows)
@@ -91,8 +95,6 @@ var Viewport = React.createClass({
     var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
     return onSort(sortColumn, sortDirection, rows);
   },
-
-
 
   groupByRowAttributes: function(attrs: any, rows: any) {
     if ((attrs instanceof Array == false) || !attrs.length > 0) {
@@ -165,7 +167,7 @@ var Viewport = React.createClass({
           ref="canvas"
           totalWidth={this.props.totalWidth}
           width={this.props.columnMetrics.width}
-          rowGetter={this.props.rowGetter}
+          getRows={this.getRows}
           rowsCount={this.props.rowsCount}
           selectedRows={this.props.selectedRows}
           expandedRows={this.props.expandedRows}
