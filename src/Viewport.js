@@ -59,8 +59,11 @@ var Viewport = React.createClass({
       };
   },
 
-  componentWillReceiveProps: function(nextProps) {
-
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.sortColumn != this.props.sortColumn || prevProps.sortDirection != this.props.sortDirection) {
+      this.getGroupedRows();
+      console.log('updating');
+    }
   },
 
   getGroupedRows: function() {
