@@ -55,7 +55,7 @@ var Viewport = React.createClass({
 
   getInitialState: function() {
       return {
-        groupedRows: [],
+        rows: [],
       };
   },
 
@@ -64,18 +64,28 @@ var Viewport = React.createClass({
   },
 
   getGroupedRows: function() {
-    debugger;
     var allRows = this.getAllRows();
     var groupedRows = this.groupByRowAttributes(this.props.groupOnAttribute, allRows);
-    this.setState({groupedRows: groupedRows});
+    var rows = this.flattenGroupedRows(groupedRows, []);
+    this.setState({rows: rows});
+  },
+
+  flattenGroupedRows: function(groupedRows, flattenedRows) {
+    if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
+        Object.keys(groupedRows)
+          .sort(function (l,r) {
+            return l.localeCompare(r);
+          }).map(function(groupName){
+            flattenedRows.push({type: 'group', name: groupName});
+            this.flattenGroupedRows(groupedRows[groupName]['rows'], flattenedRows);
+        },this);
+      return flattenedRows;
+    } else {
+      return groupedRows.forEach((r) => flattenedRows.push({type:'single', data: r}));
+    }
   },
 
   sortRows: function(sortColumn, sortDirection , rows){
-    // if(!sortColumn) { return function(rows) {return rows;}}
-    // var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
-    // var genericSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
-    // var sort = genericSort.bind(null, sortColumn, sortDirection);
-    // return sort;
     if(!sortColumn || !rows) return rows;
     var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
     var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
@@ -172,7 +182,7 @@ var Viewport = React.createClass({
           onRows={this.props.onRows}
           sortRows={this.sortRows(this.props.sortColumn, this.props.sortDirection)}
           groupOnAttribute={this.props.groupOnAttribute}
-          groupedRows={this.state.groupedRows}
+          groupedRows={this.state.rows}
           />
       </div>
     );
