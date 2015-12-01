@@ -95,7 +95,7 @@ var Canvas = React.createClass({
         });
         break;
       case 'group':
-        return this.renderGroupRow({name: row.name});
+        return this.renderGroupRow({displayElement: row.displayElement});
     }
   },
 
@@ -113,7 +113,7 @@ var Canvas = React.createClass({
     return <RowContainer
       height={this.props.rowHeight}
       width={this.props.width}
-      renderer={props.name}
+      renderer={props.displayElement}
     />
   },
 

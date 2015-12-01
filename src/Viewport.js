@@ -59,10 +59,9 @@ var Viewport = React.createClass({
       };
   },
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate: function(prevProps, prevState) {
     if(prevProps.sortColumn != this.props.sortColumn || prevProps.sortDirection != this.props.sortDirection) {
       this.getGroupedRows();
-      console.log('updating');
     }
   },
 
@@ -83,7 +82,7 @@ var Viewport = React.createClass({
           .sort(function (l,r) {
             return l.localeCompare(r);
           }).map(function(groupName){
-            flattenedRows.push({type: 'group', name: groupName});
+            flattenedRows.push({type: 'group', displayElement: groupedRows[groupName].groupHeaderDisplay});
             this.flattenGroupedRows(groupedRows[groupName]['rows'], flattenedRows);
         },this);
       return flattenedRows;
@@ -120,10 +119,10 @@ var Viewport = React.createClass({
           break;
         case 'string':
           attribute_name = row[attribute];
-          attribute_value = React.createElement('div', {className: 'groupName'}, attribute_name.toString());
+          attribute_value = React.createElement('div', {className: 'groupName', style: {padding: '6px', fontSize: '16px', fontWeight: 'bold'}}, attribute_name.toString());
           break;
         default:
-          if (row[attribulite] == 'undefined') return;
+          if (row[attribute] == 'undefined') return;
       }
 
       if (typeof(groupedRows[attribute_name]) === "undefined") groupedRows[attribute_name] = {groupHeaderDisplay: attribute_value, rows: []};
@@ -132,7 +131,6 @@ var Viewport = React.createClass({
 
     Object.keys(groupedRows).map(function(groupName){
       groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
-      //TODO sort each group here
     }, this);
 
     return groupedRows;

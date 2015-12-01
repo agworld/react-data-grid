@@ -30,6 +30,17 @@ var rowGetter = function(i){
   return _rows[i];
 };
 
+var dateSort = function(sortColumn, sortDirection, rows){
+  var comparer = function(a, b) {
+    if(sortDirection === 'ASC'){
+      return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
+    }else if(sortDirection === 'DESC'){
+      return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
+    }
+  }
+  return rows.sort(comparer);
+};
+
 //Columns definition
 var columns = [
 {
@@ -59,8 +70,9 @@ var columns = [
 },
 {
   key: 'startDate',
-  name: 'Start Date',
-  sortable : true
+  name: 'Start date',
+  sortable : true,
+  sortingFunction: dateSort
 },
 {
   key: 'completeDate',
@@ -68,6 +80,20 @@ var columns = [
   sortable : true
 }
 ]
+
+
+var PropertyGroupRow = React.createClass({
+    getDefaultProps : function() {
+      return {name: 'priority'};
+    },
+
+  render:function(){
+    return(
+      <div className="property-group" ><b>{this.props.row.priority}</b></div>
+    )
+  }
+
+});
 
 var Example = React.createClass({
 
@@ -102,7 +128,7 @@ var Example = React.createClass({
         rowGetter={this.rowGetter}
         rowsCount={this.state.rows.length}
         minHeight={500}
-        groupOnAttribute={["priority"]}
+        groupOnAttribute={[PropertyGroupRow]}
         onRowUpdated={this.handleRowUpdated}/>
     )
   }
