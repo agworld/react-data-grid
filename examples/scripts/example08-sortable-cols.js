@@ -121,7 +121,6 @@ var Example = React.createClass({
   },
 
   render:function(){
-
     return(
       <ReactDataGrid
         columns={columns}

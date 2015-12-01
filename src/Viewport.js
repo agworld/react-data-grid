@@ -70,10 +70,7 @@ var Viewport = React.createClass({
     var groupedRows = this.groupByRowAttributes(this.props.groupOnAttribute, allRows);
     var rows = this.flattenGroupedRows(groupedRows, []);
     this.setState({rows: rows});
-  },
-
-  getRows: function(start, end) {
-    return this.state.rows.slice(start, end);
+    console.log('new rows state');
   },
 
   flattenGroupedRows: function(groupedRows, flattenedRows) {
@@ -168,7 +165,6 @@ var Viewport = React.createClass({
           ref="canvas"
           totalWidth={this.props.totalWidth}
           width={this.props.columnMetrics.width}
-          getRows={this.getRows}
           rowsCount={this.props.rowsCount}
           selectedRows={this.props.selectedRows}
           expandedRows={this.props.expandedRows}

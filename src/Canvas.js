@@ -34,13 +34,13 @@ var Canvas = React.createClass({
   },
 
   render(): ?ReactElement {
-    var displayStart = this.props.displayStart;
-    var displayEnd = this.props.displayEnd;
+    var displayStart = this.state.displayStart;
+    var displayEnd = this.state.displayEnd;
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
     var groupOnAttribute = this.props.groupOnAttribute;
-
-    var rows = this.props.getRows(displayStart, displayEnd)
+console.log('rendering canvas');
+    var rows = this.props.groupedRows.slice(displayStart, displayEnd)
         .map((row,idx) => this.renderRow(row,idx));
 
     this._currentRowsLength = rows.length;
@@ -184,6 +184,7 @@ var Canvas = React.createClass({
                         || nextProps.rowsCount !== this.props.rowsCount
                         || nextProps.rowHeight !== this.props.rowHeight
                         || nextProps.columns !== this.props.columns
+                        || nextProps.groupedRows !== this.props.groupedRows
                         || nextProps.width !== this.props.width
                         || nextProps.cellMetaData !== this.props.cellMetaData
                         || !shallowEqual(nextProps.style, this.props.style);
@@ -208,19 +209,6 @@ var Canvas = React.createClass({
     if (this._currentRowsRange !== {start: 0, end: 0}) {
       this.props.onRows(this._currentRowsRange);
       this._currentRowsRange = {start: 0, end: 0};
-    }
-  },
-
-  getRows(displayStart: number, displayEnd: number): Array<any> {
-    this._currentRowsRange = {start: displayStart, end: displayEnd};
-    if (Array.isArray(this.props.rowGetter)) {
-      return this.props.rowGetter.slice(displayStart, displayEnd);
-    } else {
-      var rows = [];
-      for (var i = displayStart; i < displayEnd; i++){
-        rows.push(this.props.rowGetter(i));
-      }
-      return rows;
     }
   },
 
