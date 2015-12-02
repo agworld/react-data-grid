@@ -39,7 +39,6 @@ var Canvas = React.createClass({
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
     var groupOnAttribute = this.props.groupOnAttribute;
-console.log('rendering canvas');
     var rows = this.props.groupedRows.slice(displayStart, displayEnd)
         .map((row,idx) => this.renderRow(row,idx));
 
@@ -135,7 +134,7 @@ console.log('rendering canvas');
   },
 
   isRowSelected(rowIdx: number): boolean{
-   return this.props.selectedRows && this.props.selectedRows[rowIdx] === true;
+    return this.props.selectedRows && this.props.selectedRows[rowIdx] === true;
   },
 
   _currentRowsLength : 0,

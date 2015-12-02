@@ -60,7 +60,9 @@ var Viewport = React.createClass({
   },
 
   componentDidUpdate: function(prevProps, prevState) {
-    if(prevProps.sortColumn != this.props.sortColumn || prevProps.sortDirection != this.props.sortDirection) {
+    if(prevProps.sortColumn != this.props.sortColumn
+      || prevProps.sortDirection != this.props.sortDirection
+      || prevProps.rowGetter != this.props.rowGetter) {
       this.getGroupedRows();
     }
   },
@@ -70,7 +72,6 @@ var Viewport = React.createClass({
     var groupedRows = this.groupByRowAttributes(this.props.groupOnAttribute, allRows);
     var rows = this.flattenGroupedRows(groupedRows, []);
     this.setState({rows: rows});
-    console.log('new rows state');
   },
 
   flattenGroupedRows: function(groupedRows, flattenedRows) {
