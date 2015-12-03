@@ -36,6 +36,8 @@ var Viewport = React.createClass({
   getDefaultProps: function() {
     var defaultGridSort = function(sortColumn, sortDirection, rows){
       var comparer = function(a, b) {
+        if (a[sortColumn]==null) return 1
+        if (b[sortColumn]==null) return 0
         if(sortDirection === 'ASC'){
           return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
         }else if(sortDirection === 'DESC'){
@@ -166,7 +168,7 @@ var Viewport = React.createClass({
           ref="canvas"
           totalWidth={this.props.totalWidth}
           width={this.props.columnMetrics.width}
-          rowsCount={this.props.rowsCount}
+          rowsCount={this.state.rows.length}
           selectedRows={this.props.selectedRows}
           expandedRows={this.props.expandedRows}
           columns={this.props.columnMetrics.columns}
@@ -174,7 +176,7 @@ var Viewport = React.createClass({
           visibleStart={this.state.visibleStart}
           visibleEnd={this.state.visibleEnd}
           displayStart={this.state.displayStart}
-          displayEnd={this.state.displayEnd}
+          displayEnd={Math.max(this.state.displayEnd, this.state.rows.length)}
           cellMetaData={this.props.cellMetaData}
           height={this.state.height}
           rowHeight={this.props.rowHeight}
