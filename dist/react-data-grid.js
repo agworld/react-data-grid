@@ -3114,9 +3114,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var that = this;
 	    var comparer = function comparer(a, b) {
 	      if (sortDirection === 'ASC') {
-	        return that.props.onGridSort(a[sortColumn], b[sortColumn]);
+	        return onSort(a[sortColumn], b[sortColumn]);
 	      } else if (sortDirection === 'DESC') {
-	        return that.props.onGridSort(b[sortColumn], a[sortColumn]);
+	        return onSort(b[sortColumn], a[sortColumn]);
 	      }
 	    };
 	    return rows.sort(comparer);
