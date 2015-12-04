@@ -37,7 +37,7 @@ var Viewport = React.createClass({
     var defaultGridSort = function(sortColumn, sortDirection, rows){
       var comparer = function(a, b) {
         if (a[sortColumn]==null) return 1
-        if (b[sortColumn]==null) return 0
+        if (b[sortColumn]==null) return -1
         if(sortDirection === 'ASC'){
           return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
         }else if(sortDirection === 'DESC'){
