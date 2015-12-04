@@ -65,7 +65,7 @@ var ReactDataGrid = React.createClass({
     width: React.PropTypes.number,
     enableRowSelect: React.PropTypes.bool,
     onRowUpdated:React.PropTypes.func,
-    rowGetter: React.PropTypes.func.isRequired,
+    rowGetter: PropTypes.oneOfType([PropTypes.array, PropTypes.func]).isRequired,
     rowsCount : React.PropTypes.number.isRequired,
     toolbar:React.PropTypes.element,
     enableCellSelect : React.PropTypes.bool,
@@ -476,9 +476,7 @@ var ReactDataGrid = React.createClass({
   },
 
   handleSort: function(columnKey: string, direction: SortType) {
-    this.setState({sortDirection: direction, sortColumn: columnKey}, function(){
-      this.props.onGridSort(columnKey, direction);
-    });
+    this.setState({sortDirection: direction, sortColumn: columnKey});
   },
 
   copyPasteEnabled: function(): boolean {

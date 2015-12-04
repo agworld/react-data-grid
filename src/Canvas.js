@@ -39,23 +39,10 @@ var Canvas = React.createClass({
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
     var groupOnAttribute = this.props.groupOnAttribute;
-
-    var rows = this.getRows(displayStart, displayEnd)
-        .map((row, idx) => this.renderRow({
-          key: displayStart + idx,
-          ref: idx,
-          idx: displayStart + idx,
-          row: row,
-          height: rowHeight,
-          columns: this.props.columns,
-          isSelected : this.isRowSelected(displayStart + idx),
-          expandedRows : this.props.expandedRows,
-          cellMetaData : this.props.cellMetaData
-        }));
+    var rows = this.props.groupedRows.slice(displayStart, displayEnd)
+        .map((row,idx) => this.renderRow(row,idx));
 
     this._currentRowsLength = rows.length;
-
-    var groupedRows = this.groupByRowAttributes(groupOnAttribute, rows);
 
     if (displayStart > 0) {
       rows.unshift(this.renderPlaceholder('top', displayStart * rowHeight));
@@ -83,35 +70,35 @@ var Canvas = React.createClass({
         onScroll={this.onScroll}
         className={joinClasses("react-grid-Canvas", this.props.className, {opaque : this.props.cellMetaData.selected && this.props.cellMetaData.selected.active})}>
         <div style={{width: this.props.width, overflow: 'hidden'}}>
-          {this.renderGroupedRows(groupedRows)}
+          {rows}
         </div>
       </div>
     )
   },
 
-  renderGroupedRows(groupedRows) {
-    if ((typeof groupedRows === 'object') && (groupedRows instanceof Array == false)){
-      return (
-        Object.keys(groupedRows)
-          .sort(function (l,r) { 
-            return l.localeCompare(r);
-          }).map(function(groupName){
-          return (<div>
-            <RowContainer
-              height={this.props.rowHeight}
-              width={this.props.width}
-              renderer={groupedRows[groupName]['groupHeaderDisplay']}
-            />
-            {this.renderGroupedRows(groupedRows[groupName]['rows'])}
-          </div>)
-        }, this)
-      );
-    } else {
-      return groupedRows;
+  renderRow(row, idx) {
+    var rowHeight = this.props.rowHeight;
+    var length = this.props.rowsCount;
+    switch (row.type) {
+      case 'single':
+        return this.renderSingleRow({
+          key: this.props.displayStart + idx,
+          ref: idx,
+          idx: this.props.displayStart + idx,
+          row: row.data,
+          height: rowHeight,
+          columns: this.props.columns,
+          isSelected : this.isRowSelected(this.props.displayStart + idx),
+          expandedRows : this.props.expandedRows,
+          cellMetaData : this.props.cellMetaData
+        });
+        break;
+      case 'group':
+        return this.renderGroupRow({displayElement: row.displayElement});
     }
   },
 
-  renderRow(props: any) {
+  renderSingleRow(props: any) {
     var RowsRenderer = this.props.rowRenderer;
     if(typeof RowsRenderer === 'function') {
       return <RowsRenderer {...props}/>;
@@ -121,41 +108,12 @@ var Canvas = React.createClass({
     }
   },
 
-  groupByRowAttributes(attrs: any, rows: any) {
-    if ((attrs instanceof Array == false) || !attrs.length > 0) return rows;
-    var groupedRows = {};
-    var attributes = attrs.slice()
-    var attribute = attributes.shift();
-
-    for (var i = 0; i < rows.length; i++) {
-      var rowElt = rows[i];
-      var row = rowElt.props.row;
-      if (typeof(row) === 'undefined') continue;
-
-      var attribute_name, attribute_value;
-      switch (typeof(attribute)){
-        case 'function':
-          var reactComponent = React.createElement(attribute, {row: row});
-          attribute_name = row[reactComponent.props.name.toString()];
-          attribute_value = reactComponent;
-          break;
-        case 'string':
-          attribute_name = row[attribute];
-          attribute_value = React.createElement('div', {className: 'groupName'}, attribute_name.toString());
-          break;
-        default:
-          if (row[attribute] == 'undefined') return;
-      }
-
-      if (typeof(groupedRows[attribute_name]) === "undefined") groupedRows[attribute_name] = {groupHeaderDisplay: attribute_value, rows: []};
-      groupedRows[attribute_name]['rows'].push(rowElt);
-    }
-
-    Object.keys(groupedRows).map(function(groupName){
-      groupedRows[groupName]['rows'] = this.groupByRowAttributes(attributes, groupedRows[groupName]['rows']);
-    }, this);
-
-    return groupedRows;
+  renderGroupRow(props: any) {
+    return <RowContainer
+      height={this.props.rowHeight}
+      width={this.props.width}
+      renderer={props.displayElement}
+    />
   },
 
   renderPlaceholder(key: string, height: number): ?ReactElement {
@@ -176,7 +134,7 @@ var Canvas = React.createClass({
   },
 
   isRowSelected(rowIdx: number): boolean{
-   return this.props.selectedRows && this.props.selectedRows[rowIdx] === true;
+    return this.props.selectedRows && this.props.selectedRows[rowIdx] === true;
   },
 
   _currentRowsLength : 0,
@@ -225,6 +183,7 @@ var Canvas = React.createClass({
                         || nextProps.rowsCount !== this.props.rowsCount
                         || nextProps.rowHeight !== this.props.rowHeight
                         || nextProps.columns !== this.props.columns
+                        || nextProps.groupedRows !== this.props.groupedRows
                         || nextProps.width !== this.props.width
                         || nextProps.cellMetaData !== this.props.cellMetaData
                         || !shallowEqual(nextProps.style, this.props.style);
@@ -249,19 +208,6 @@ var Canvas = React.createClass({
     if (this._currentRowsRange !== {start: 0, end: 0}) {
       this.props.onRows(this._currentRowsRange);
       this._currentRowsRange = {start: 0, end: 0};
-    }
-  },
-
-  getRows(displayStart: number, displayEnd: number): Array<any> {
-    this._currentRowsRange = {start: displayStart, end: displayEnd};
-    if (Array.isArray(this.props.rowGetter)) {
-      return this.props.rowGetter.slice(displayStart, displayEnd);
-    } else {
-      var rows = [];
-      for (var i = displayStart; i < displayEnd; i++){
-        rows.push(this.props.rowGetter(i));
-      }
-      return rows;
     }
   },
 
