@@ -34,17 +34,10 @@ var Viewport = React.createClass({
   },
 
   getDefaultProps: function() {
-    var defaultGridSort = function(sortColumn, sortDirection, rows){
-      var comparer = function(a, b) {
-        if (a[sortColumn]==null) return 1
-        if (b[sortColumn]==null) return -1
-        if(sortDirection === 'ASC'){
-          return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
-        }else if(sortDirection === 'DESC'){
-          return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
-        }
-      }
-      return rows.sort(comparer);
+    var defaultGridSort = function(a, b) {
+      if (a==null) return 1;
+      if (b==null) return -1;
+      return (a > b) ? 1 : -1;
     };
     return {
       onGridSort: defaultGridSort
@@ -95,7 +88,16 @@ var Viewport = React.createClass({
     if(!sortColumn || !rows) return rows;
     var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
     var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
-    return onSort(sortColumn, sortDirection, rows);
+
+    var that = this;
+    var comparer = function(a, b) {
+      if(sortDirection === 'ASC'){
+        return that.props.onGridSort(a[sortColumn], b[sortColumn]);
+      }else if(sortDirection === 'DESC'){
+        return that.props.onGridSort(b[sortColumn], a[sortColumn]);
+      }
+    }
+    return rows.sort(comparer);
   },
 
   groupByRowAttributes: function(attrs: any, rows: any) {
