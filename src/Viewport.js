@@ -80,7 +80,8 @@ var Viewport = React.createClass({
         },this);
       return flattenedRows;
     } else {
-      return groupedRows.forEach((r) => flattenedRows.push({type:'single', data: r}));
+      groupedRows.forEach((r) => flattenedRows.push({type:'single', data: r}));
+      return  flattenedRows;
     }
   },
 
