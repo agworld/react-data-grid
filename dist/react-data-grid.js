@@ -3098,9 +3098,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }, this);
 	      return flattenedRows;
 	    } else {
-	      return groupedRows.forEach(function (r) {
+	      groupedRows.forEach(function (r) {
 	        return flattenedRows.push({ type: 'single', data: r });
 	      });
+	      return flattenedRows;
 	    }
 	  },
 
