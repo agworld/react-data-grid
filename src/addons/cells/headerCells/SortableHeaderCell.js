@@ -56,7 +56,7 @@ var SortableHeaderCell = React.createClass({
       <div
         onClick={this.onClick}
         style={{cursor: 'pointer'}}>
-        {this.props.column.name}
+        <span className="pull-left">{this.props.column.name}</span>
         <span className="pull-right">{this.getSortByText()}</span>
       </div>
     );
