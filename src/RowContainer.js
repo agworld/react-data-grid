@@ -9,16 +9,14 @@
 var React = require('react');
 
 
-class RowContainer extends React.Component {
-  render(): ?ReactElement {
-    return (
-        <div style={{height: this.props.height, overflow: 'hidden'}}>
-          <div style={{position: 'absolute', left: 0, width: this.props.width}}>
-            {this.props.renderer}
-          </div>
+function RowContainer(props) {
+  return (
+      <div style={{height: props.height, overflow: 'hidden'}}>
+        <div style={{position: 'absolute', left: 0, width: props.width}}>
+          {props.renderer}
         </div>
-    );
-  }
+      </div>
+  );
 }
 
 RowContainer.propTypes = {
