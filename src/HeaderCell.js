@@ -7,6 +7,7 @@
 "use strict";
 
 var React          = require('react');
+var ReactDOM = require('react-dom');
 var joinClasses     = require('classnames');
 var cloneWithProps = require('react/lib/cloneWithProps');
 var PropTypes      = React.PropTypes;
@@ -56,7 +57,7 @@ class HeaderCell extends React.Component {
   }
 
   setScrollLeft(scrollLeft: number) {
-    var node = React.findDOMNode(this);
+    var node = ReactDOM.findDOMNode(this);
     node.style.webkitTransform = `translate3d(${scrollLeft}px, 0px, 0px)`;
     node.style.transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
   }
@@ -99,7 +100,7 @@ class HeaderCell extends React.Component {
 
   getWidthFromMouseEvent(e: SyntheticMouseEvent): number {
     var right = e.pageX;
-    var left = React.findDOMNode(this).getBoundingClientRect().left;
+    var left = ReactDOM.findDOMNode(this).getBoundingClientRect().left;
     return right - left;
   }
 }

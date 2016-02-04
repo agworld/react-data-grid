@@ -4,6 +4,7 @@
  */
 "use strict";
 var React           = require('react');
+var ReactDOM = require('react-dom');
 var joinClasses     = require('classnames');
 var PropTypes       = React.PropTypes;
 var cloneWithProps  = require('react/lib/cloneWithProps');
@@ -175,7 +176,7 @@ var Canvas = React.createClass({
 
   componentWillReceiveProps(nextProps: any) {
     if(nextProps.rowsCount > this.props.rowsCount){
-      React.findDOMNode(this).scrollTop =nextProps.rowsCount * this.props.rowHeight;
+      ReactDOM.findDOMNode(this).scrollTop =nextProps.rowsCount * this.props.rowHeight;
     }
     var scrollbarWidth = this.getScrollbarWidth();
     var shouldUpdate = !(nextProps.visibleStart > this.state.displayStart
@@ -214,7 +215,7 @@ var Canvas = React.createClass({
   getScrollbarWidth() {
     var scrollbarWidth = 0;
     // Get the scrollbar width
-    var canvas = React.findDOMNode(this);
+    var canvas = ReactDOM.findDOMNode(this);
     scrollbarWidth  = canvas.offsetWidth - canvas.clientWidth;
     return scrollbarWidth;
   },
@@ -231,7 +232,7 @@ var Canvas = React.createClass({
   },
 
   getScroll(): {scrollTop: number; scrollLeft: number} {
-    var {scrollTop, scrollLeft} = React.findDOMNode(this);
+    var {scrollTop, scrollLeft} = ReactDOM.findDOMNode(this);
     return {scrollTop, scrollLeft};
   },
 

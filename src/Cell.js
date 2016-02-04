@@ -7,6 +7,7 @@
 'use strict';
 
 var React             = require('react');
+var ReactDOM = require('react-dom');
 var joinClasses       = require('classnames');
 var cloneWithProps    = require('react/lib/cloneWithProps');
 var EditorContainer   = require('./addons/editors/EditorContainer');
@@ -204,7 +205,7 @@ var Cell = React.createClass({
 
   checkFocus: function() {
     if (this.isSelected() && !this.isActive()) {
-      React.findDOMNode(this).focus();
+      ReactDOM.findDOMNode(this).focus();
     }
   },
 
@@ -235,7 +236,7 @@ var Cell = React.createClass({
     var updateCellClass = this.getUpdateCellClass();
     // -> removing the class
     if(updateCellClass != null && updateCellClass != "") {
-      var cellDOMNode = React.findDOMNode(this);
+      var cellDOMNode = ReactDOM.findDOMNode(this);
       if (cellDOMNode.classList) {
         cellDOMNode.classList.remove(updateCellClass);
       // -> and re-adding the class
@@ -252,7 +253,7 @@ var Cell = React.createClass({
   setScrollLeft(scrollLeft: number) {
     var ctrl: any = this; //flow on windows has an outdated react declaration, once that gets updated, we can remove this
     if (ctrl.isMounted()) {
-      var node = React.findDOMNode(this);
+      var node = ReactDOM.findDOMNode(this);
       var transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
       node.style.webkitTransform = transform;
       node.style.transform = transform;

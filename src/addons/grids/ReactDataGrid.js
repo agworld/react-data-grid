@@ -6,6 +6,7 @@
 "use strict";
 
 var React                 = require('react');
+var ReactDOM = require('react-dom');
 var PropTypes             = React.PropTypes;
 var BaseGrid              = require('../../Grid');
 var Row                   = require('../../Row');
@@ -122,7 +123,7 @@ var ReactDataGrid = React.createClass({
 
   componentDidMount() {
     var scrollOffset = 0;
-    var canvas = React.findDOMNode(this).querySelector('.react-grid-Canvas');
+    var canvas = ReactDOM.findDOMNode(this).querySelector('.react-grid-Canvas');
     if(canvas != null){
         scrollOffset = canvas.offsetWidth - canvas.clientWidth;
     }
