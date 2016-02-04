@@ -214,7 +214,7 @@ var Canvas = React.createClass({
   getScrollbarWidth() {
     var scrollbarWidth = 0;
     // Get the scrollbar width
-    var canvas = this.getDOMNode();
+    var canvas = React.findDOMNode(this);
     scrollbarWidth  = canvas.offsetWidth - canvas.clientWidth;
     return scrollbarWidth;
   },

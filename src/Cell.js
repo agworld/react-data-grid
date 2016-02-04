@@ -235,7 +235,7 @@ var Cell = React.createClass({
     var updateCellClass = this.getUpdateCellClass();
     // -> removing the class
     if(updateCellClass != null && updateCellClass != "") {
-      var cellDOMNode = this.getDOMNode();
+      var cellDOMNode = React.findDOMNode(this);
       if (cellDOMNode.classList) {
         cellDOMNode.classList.remove(updateCellClass);
       // -> and re-adding the class
