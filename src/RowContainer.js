@@ -9,14 +9,7 @@
 var React = require('react');
 
 
-var RowContainer = React.createClass({
-
-  propTypes: {
-    height: React.PropTypes.number.isRequired,
-    width: React.PropTypes.number.isRequired,
-    renderer: React.PropTypes.func.isRequired
-  },
-
+class RowContainer extends React.Component {
   render(): ?ReactElement {
     return (
         <div style={{height: this.props.height, overflow: 'hidden'}}>
@@ -26,6 +19,12 @@ var RowContainer = React.createClass({
         </div>
     );
   }
-});
+}
+
+RowContainer.propTypes = {
+  height: React.PropTypes.number.isRequired,
+  width: React.PropTypes.number.isRequired,
+  renderer: React.PropTypes.func.isRequired
+};
 
 module.exports = RowContainer;

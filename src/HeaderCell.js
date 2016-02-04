@@ -13,15 +13,14 @@ var PropTypes      = React.PropTypes;
 var ExcelColumn    = require('./addons/grids/ExcelColumn');
 var ResizeHandle   = require('./ResizeHandle');
 
-var HeaderCell = React.createClass({
-
-  propTypes: {
-    renderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired,
-    column: PropTypes.shape(ExcelColumn).isRequired,
-    onResize: PropTypes.func.isRequired,
-    height : PropTypes.number.isRequired,
-    onResizeEnd : PropTypes.func.isRequired
-  },
+class HeaderCell extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.onDrag = this.onDrag.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
+    this.state = {resizing: false};
+  }
 
   render(): ?ReactElement {
     var resizeHandle;
@@ -45,7 +44,7 @@ var HeaderCell = React.createClass({
         {{resizeHandle}}
       </div>
     );
-  },
+  }
 
   getCell(): ReactComponent {
     if (React.isValidElement(this.props.renderer)) {
@@ -54,23 +53,13 @@ var HeaderCell = React.createClass({
       var Renderer = this.props.renderer;
       return this.props.renderer({column: this.props.column});
     }
-  },
-
-  getDefaultProps(): {renderer: ReactComponent | (props: {column: {name: string}}) => ReactElement} {
-    return {
-      renderer: simpleCellRenderer
-    };
-  },
-
-  getInitialState(): {resizing: boolean} {
-    return {resizing: false};
-  },
+  }
 
   setScrollLeft(scrollLeft: number) {
     var node = React.findDOMNode(this);
     node.style.webkitTransform = `translate3d(${scrollLeft}px, 0px, 0px)`;
     node.style.transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
-  },
+  }
 
   getStyle(): {width:number; left: number; display: string; position: string; overflow: string; height: number; margin: number; textOverflow: string; whiteSpace: string } {
     return {
@@ -84,13 +73,13 @@ var HeaderCell = React.createClass({
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     };
-  },
+  }
 
   onDragStart(e: SyntheticMouseEvent) {
     this.setState({resizing: true});
     //need to set dummy data for FF
     if(e && e.dataTransfer && e.dataTransfer.setData) e.dataTransfer.setData('text/plain', 'dummy');
-  },
+  }
 
   onDrag(e: SyntheticMouseEvent) {
     var resize = this.props.onResize || null; //for flows sake, doesnt recognise a null check direct
@@ -100,38 +89,49 @@ var HeaderCell = React.createClass({
         resize(this.props.column, width);
       }
     }
-  },
+  }
 
   onDragEnd(e: SyntheticMouseEvent) {
     var width = this.getWidthFromMouseEvent(e);
     this.props.onResizeEnd(this.props.column, width);
     this.setState({resizing: false});
-  },
+  }
 
   getWidthFromMouseEvent(e: SyntheticMouseEvent): number {
     var right = e.pageX;
     var left = React.findDOMNode(this).getBoundingClientRect().left;
     return right - left;
   }
-});
+}
+
+HeaderCell.defaultProps = {
+  renderer: simpleCellRenderer
+};
+
+HeaderCell.propTypes = {
+  renderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired,
+  column: PropTypes.shape(ExcelColumn).isRequired,
+  onResize: PropTypes.func.isRequired,
+  height : PropTypes.number.isRequired,
+  onResizeEnd : PropTypes.func.isRequired
+};
 
 function simpleCellRenderer(props: {column: {name: string}}): ReactElement {
   return <div className="widget-HeaderCell__value">{props.column.name}</div>;
 }
 
-var SimpleCellFormatter = React.createClass({
-  propTypes : {
-    value :  React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired
-  },
-
-  render(): ?ReactElement{
+class SimpleCellFormatter extends React.Component {
+  render(): ?ReactElement {
     return <span>{this.props.value}</span>
-  },
+  }
 
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
       return nextProps.value !== this.props.value;
   }
+}
 
-})
+SimpleCellFormatter.propTypes = {
+  value :  React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired
+};
 
 module.exports = HeaderCell;

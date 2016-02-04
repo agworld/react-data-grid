@@ -9,24 +9,20 @@
 var React              = require('react');
 var ExcelColumn        = require('../../grids/ExcelColumn');
 
-var FilterableHeaderCell = React.createClass({
+class FilterableHeaderCell extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.handleChange = this.handleChange.bind(this);
+    this.state = {filterTerm : ''};
+  }
 
-  propTypes: {
-    onChange: React.PropTypes.func.isRequired,
-    column: React.PropTypes.shape(ExcelColumn).isRequired
-  },
-
-  getInitialState(): {filterTerm: string}{
-    return {filterTerm : ''}
-  },
-
-  handleChange(e: Event){
+  handleChange(e: Event) {
     var val = e.target.value;
     this.setState({filterTerm : val });
     this.props.onChange({filterTerm : val, columnKey : this.props.column.key});
-  },
+  }
 
-  render: function(): ?ReactElement {
+  render(): ?ReactElement {
     return (
       <div>
         <div className="form-group">
@@ -34,9 +30,9 @@ var FilterableHeaderCell = React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderInput : function(): ?ReactElement {
+  renderInput(): ?ReactElement {
     if(this.props.column.filterable === false){
       return <span/>;
     }else{
@@ -45,6 +41,11 @@ var FilterableHeaderCell = React.createClass({
     }
 
   }
-});
+}
+
+FilterableHeaderCell.propTypes = {
+  onChange: React.PropTypes.func.isRequired,
+  column: React.PropTypes.shape(ExcelColumn).isRequired
+};
 
 module.exports = FilterableHeaderCell;

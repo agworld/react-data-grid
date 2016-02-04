@@ -326,18 +326,18 @@ var Cell = React.createClass({
 
 });
 
-var SimpleCellFormatter = React.createClass({
-  propTypes : {
-    value :  React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired
-  },
-
-  render(): ?ReactElement{
+class SimpleCellFormatter extends React.Component {
+  render(): ?ReactElement {
     return <span>{this.props.value}</span>
-  },
+  }
+
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
       return nextProps.value !== this.props.value;
   }
+}
 
-})
+SimpleCellFormatter.propTypes = {
+  value :  React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired
+};
 
 module.exports = Cell;

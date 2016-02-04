@@ -15,14 +15,13 @@ var DEFINE_SORT = {
   NONE  : 'NONE'
 }
 
-var SortableHeaderCell = React.createClass({
-  propTypes: {
-    columnKey : React.PropTypes.string.isRequired,
-    onSort    : React.PropTypes.func.isRequired,
-    sortDirection : React.PropTypes.oneOf(['ASC', 'DESC', 'NONE'])
-  },
+class SortableHeaderCell extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.onClick = this.onClick.bind(this);
+  }
 
-  onClick: function() {
+  onClick() {
     var direction;
     switch(this.props.sortDirection){
       case null:
@@ -40,18 +39,18 @@ var SortableHeaderCell = React.createClass({
     this.props.onSort(
       this.props.columnKey,
       direction);
-  },
+  }
 
-  getSortByText : function(){
+  getSortByText() {
     var unicodeKeys = {
       'ASC' : '9650',
       'DESC' : '9660',
       'NONE' : ''
     }
     return String.fromCharCode(unicodeKeys[this.props.sortDirection]);
-  },
+  }
 
-  render: function(): ?ReactElement {
+  render(): ?ReactElement {
     return (
       <div
         onClick={this.onClick}
@@ -61,6 +60,12 @@ var SortableHeaderCell = React.createClass({
       </div>
     );
   }
-});
+}
+
+SortableHeaderCell.propTypes = {
+  columnKey : React.PropTypes.string.isRequired,
+  onSort    : React.PropTypes.func.isRequired,
+  sortDirection : React.PropTypes.oneOf(['ASC', 'DESC', 'NONE'])
+};
 
 module.exports = SortableHeaderCell;

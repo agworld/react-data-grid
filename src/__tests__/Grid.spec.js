@@ -10,23 +10,28 @@ var helpers       = require('./GridPropHelpers');
 describe('Base Grid Tests', () => {
   var testElement;
   var headerScrollLeft
-  var HeaderStub = React.createClass({
-    setScrollLeft(scroll){
-    },
-    render(){
+
+  class HeaderStub extends React.Component {
+    setScrollLeft(scroll) {
+    }
+
+    render() {
       return(<div></div>)
     }
-  });
-  var ViewportStub = React.createClass({
-    setScrollLeft(scroll){
-    },
-    getScroll(){
+  }
+
+  class ViewportStub extends React.Component {
+    setScrollLeft(scroll) {
+    }
+
+    getScroll() {
       return {scrollLeft : 0}
-    },
-    render(){
+    }
+
+    render() {
       return(<div></div>)
     }
-  });
+  }
 
   // Configure local variable replacements for the module.
   rewireModule(Grid, {
@@ -94,8 +99,4 @@ describe('Base Grid Tests', () => {
     TestUtils.Simulate.dragEnd(viewportContainerNode);
     expect(testProps.onViewportDragEnd).toHaveBeenCalled();
   });
-
-
-
-
 });
