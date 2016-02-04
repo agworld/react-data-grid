@@ -23,6 +23,63 @@ class HeaderCell extends React.Component {
     this.state = {resizing: false};
   }
 
+  onDrag(e: SyntheticMouseEvent) {
+    var resize = this.props.onResize || null; //for flows sake, doesnt recognise a null check direct
+    if(resize) {
+      var width = this.getWidthFromMouseEvent(e);
+      if (width > 0) {
+        resize(this.props.column, width);
+      }
+    }
+  }
+
+  onDragEnd(e: SyntheticMouseEvent) {
+    var width = this.getWidthFromMouseEvent(e);
+    this.props.onResizeEnd(this.props.column, width);
+    this.setState({resizing: false});
+  }
+
+  onDragStart(e: SyntheticMouseEvent) {
+    this.setState({resizing: true});
+    //need to set dummy data for FF
+    if(e && e.dataTransfer && e.dataTransfer.setData) e.dataTransfer.setData('text/plain', 'dummy');
+  }
+
+  getCell(): ReactComponent {
+    if (React.isValidElement(this.props.renderer)) {
+      return cloneWithProps(this.props.renderer, {column : this.props.column});
+    } else {
+      var Renderer = this.props.renderer;
+      return this.props.renderer({column: this.props.column});
+    }
+  }
+
+  getStyle(): {width:number; left: number; display: string; position: string; overflow: string; height: number; margin: number; textOverflow: string; whiteSpace: string } {
+    return {
+      width: this.props.column.width,
+      left: this.props.column.left,
+      display: 'inline-block',
+      position: 'absolute',
+      overflow: 'hidden',
+      height: this.props.height,
+      margin: 0,
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    };
+  }
+
+  getWidthFromMouseEvent(e: SyntheticMouseEvent): number {
+    var right = e.pageX;
+    var left = ReactDOM.findDOMNode(this).getBoundingClientRect().left;
+    return right - left;
+  }
+
+  setScrollLeft(scrollLeft: number) {
+    var node = ReactDOM.findDOMNode(this);
+    node.style.webkitTransform = `translate3d(${scrollLeft}px, 0px, 0px)`;
+    node.style.transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
+  }
+
   render(): ?ReactElement {
     var resizeHandle;
     if(this.props.column.resizable){
@@ -46,63 +103,6 @@ class HeaderCell extends React.Component {
       </div>
     );
   }
-
-  getCell(): ReactComponent {
-    if (React.isValidElement(this.props.renderer)) {
-      return cloneWithProps(this.props.renderer, {column : this.props.column});
-    } else {
-      var Renderer = this.props.renderer;
-      return this.props.renderer({column: this.props.column});
-    }
-  }
-
-  setScrollLeft(scrollLeft: number) {
-    var node = ReactDOM.findDOMNode(this);
-    node.style.webkitTransform = `translate3d(${scrollLeft}px, 0px, 0px)`;
-    node.style.transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
-  }
-
-  getStyle(): {width:number; left: number; display: string; position: string; overflow: string; height: number; margin: number; textOverflow: string; whiteSpace: string } {
-    return {
-      width: this.props.column.width,
-      left: this.props.column.left,
-      display: 'inline-block',
-      position: 'absolute',
-      overflow: 'hidden',
-      height: this.props.height,
-      margin: 0,
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    };
-  }
-
-  onDragStart(e: SyntheticMouseEvent) {
-    this.setState({resizing: true});
-    //need to set dummy data for FF
-    if(e && e.dataTransfer && e.dataTransfer.setData) e.dataTransfer.setData('text/plain', 'dummy');
-  }
-
-  onDrag(e: SyntheticMouseEvent) {
-    var resize = this.props.onResize || null; //for flows sake, doesnt recognise a null check direct
-    if(resize) {
-      var width = this.getWidthFromMouseEvent(e);
-      if (width > 0) {
-        resize(this.props.column, width);
-      }
-    }
-  }
-
-  onDragEnd(e: SyntheticMouseEvent) {
-    var width = this.getWidthFromMouseEvent(e);
-    this.props.onResizeEnd(this.props.column, width);
-    this.setState({resizing: false});
-  }
-
-  getWidthFromMouseEvent(e: SyntheticMouseEvent): number {
-    var right = e.pageX;
-    var left = ReactDOM.findDOMNode(this).getBoundingClientRect().left;
-    return right - left;
-  }
 }
 
 HeaderCell.defaultProps = {
@@ -122,12 +122,12 @@ function simpleCellRenderer(props: {column: {name: string}}): ReactElement {
 }
 
 class SimpleCellFormatter extends React.Component {
-  render(): ?ReactElement {
-    return <span>{this.props.value}</span>
-  }
-
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
       return nextProps.value !== this.props.value;
+  }
+
+  render(): ?ReactElement {
+    return <span>{this.props.value}</span>
   }
 }
 

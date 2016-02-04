@@ -17,13 +17,13 @@ var CheckboxEditor = React.createClass({
     }).isRequired
   },
 
+  handleChange(e: Event){
+    this.props.column.onCellChange(this.props.rowIdx, this.props.column.key, e);
+  },
+
   render(): ? ReactElement {
     var checked = this.props.value != null ? this.props.value : false;
     return (<input className="react-grid-CheckBox" type="checkbox" checked={checked} onChange={this.handleChange} />);
-  },
-
-  handleChange(e: Event){
-    this.props.column.onCellChange(this.props.rowIdx, this.props.column.key, e);
   }
 });
 

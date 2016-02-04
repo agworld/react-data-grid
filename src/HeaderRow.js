@@ -41,32 +41,15 @@ var HeaderRow = React.createClass({
 
   mixins: [ColumnUtilsMixin],
 
-  render(): ?ReactElement {
-    var cellsStyle = {
-      width: this.props.width ? (this.props.width + getScrollbarSize()) : '100%',
-      height: this.props.height,
-      whiteSpace: 'nowrap',
-      overflowX: 'hidden',
-      overflowY: 'hidden'
-    };
-
-    var cells = this.getCells();
+  shouldComponentUpdate(nextProps: {width: ?(number | string); height: number; columns: Array<ExcelColumn>; style: ?HeaderRowStyle; onColumnResize: ?any}): boolean {
     return (
-      <div {...this.props}  className="react-grid-HeaderRow">
-        <div style={cellsStyle}>
-          {cells}
-        </div>
-      </div>
+      nextProps.width !== this.props.width
+      || nextProps.height !== this.props.height
+      || nextProps.columns !== this.props.columns
+      || !shallowEqual(nextProps.style, this.props.style)
+      || this.props.sortColumn != nextProps.sortColumn
+      || this.props.sortDirection != nextProps.sortDirection
     );
-  },
-
-  getHeaderRenderer(column){
-    if (column.sortable) {
-      var sortDirection = (this.props.sortColumn === column.key) ? this.props.sortDirection : DEFINE_SORT.NONE;
-      return <SortableHeaderCell columnKey={column.key} onSort={this.props.onSort} sortDirection={sortDirection}/>;
-    }else{
-      return this.props.headerCellRenderer || column.headerRenderer || this.props.cellRenderer;
-    }
   },
 
   getCells(): Array<HeaderCell> {
@@ -97,24 +80,13 @@ var HeaderRow = React.createClass({
     return cells.concat(lockedCells);
   },
 
-  setScrollLeft(scrollLeft: number) {
-    this.props.columns.forEach( (column, i) => {
-      if (column.locked) {
-        this.refs[i].setScrollLeft(scrollLeft);
-      }
-    });
-  },
-
-
-  shouldComponentUpdate(nextProps: {width: ?(number | string); height: number; columns: Array<ExcelColumn>; style: ?HeaderRowStyle; onColumnResize: ?any}): boolean {
-    return (
-      nextProps.width !== this.props.width
-      || nextProps.height !== this.props.height
-      || nextProps.columns !== this.props.columns
-      || !shallowEqual(nextProps.style, this.props.style)
-      || this.props.sortColumn != nextProps.sortColumn
-      || this.props.sortDirection != nextProps.sortDirection
-    );
+  getHeaderRenderer(column){
+    if (column.sortable) {
+      var sortDirection = (this.props.sortColumn === column.key) ? this.props.sortDirection : DEFINE_SORT.NONE;
+      return <SortableHeaderCell columnKey={column.key} onSort={this.props.onSort} sortDirection={sortDirection}/>;
+    }else{
+      return this.props.headerCellRenderer || column.headerRenderer || this.props.cellRenderer;
+    }
   },
 
   getStyle(): HeaderRowStyle {
@@ -124,6 +96,34 @@ var HeaderRow = React.createClass({
       height: this.props.height,
       position: 'absolute'
     };
+  },
+
+
+  setScrollLeft(scrollLeft: number) {
+    this.props.columns.forEach( (column, i) => {
+      if (column.locked) {
+        this.refs[i].setScrollLeft(scrollLeft);
+      }
+    });
+  },
+
+  render(): ?ReactElement {
+    var cellsStyle = {
+      width: this.props.width ? (this.props.width + getScrollbarSize()) : '100%',
+      height: this.props.height,
+      whiteSpace: 'nowrap',
+      overflowX: 'hidden',
+      overflowY: 'hidden'
+    };
+
+    var cells = this.getCells();
+    return (
+      <div {...this.props}  className="react-grid-HeaderRow">
+        <div style={cellsStyle}>
+          {cells}
+        </div>
+      </div>
+    );
   }
 
 });

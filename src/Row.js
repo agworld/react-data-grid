@@ -43,24 +43,35 @@ var Row = React.createClass({
 
   mixins: [ColumnUtilsMixin],
 
-  render(): ?ReactElement {
-    var className = joinClasses(
-      'react-grid-Row',
-      "react-grid-Row--${this.props.idx % 2 === 0 ? 'even' : 'odd'}"
-    );
-
-    var style = {
-      height: this.getRowHeight(this.props),
-      overflow: 'hidden'
+  getDefaultProps(): {cellRenderer: Cell} {
+    return {
+      cellRenderer: Cell,
+      isSelected: false,
+      height : 35
     };
+  },
 
-    var cells = this.getCells();
-    return (
-      <div {...this.props} className={className} style={style} onDragEnter={this.handleDragEnter}>
-        {React.isValidElement(this.props.row) ?
-          this.props.row : cells}
-      </div>
-    );
+  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    return !(ColumnMetrics.sameColumns(this.props.columns, nextProps.columns, ColumnMetrics.sameColumn)) ||
+    this.doesRowContainSelectedCell(this.props)          ||
+    this.doesRowContainSelectedCell(nextProps)           ||
+    this.willRowBeDraggedOver(nextProps)                 ||
+    nextProps.row !== this.props.row                     ||
+    this.hasRowBeenCopied()                              ||
+    this.props.isSelected !== nextProps.isSelected       ||
+    nextProps.height !== this.props.height;
+  },
+
+  getCellValue(key: number | string): any {
+    var val;
+    if(key === 'select-row') {
+      return this.props.isSelected;
+    } else if (typeof this.props.row.get === 'function') {
+      val = this.props.row.get(key);
+    } else {
+      val = this.props.row[key];
+    }
+    return val;
   },
 
   getCells(): Array<ReactElement> {
@@ -105,35 +116,11 @@ var Row = React.createClass({
     return this.props.height;
   },
 
-  getCellValue(key: number | string): any {
-    var val;
-    if(key === 'select-row') {
-      return this.props.isSelected;
-    } else if (typeof this.props.row.get === 'function') {
-      val = this.props.row.get(key);
-    } else {
-      val = this.props.row[key];
+  getSelectedColumn(){
+    var selected = this.props.cellMetaData.selected;
+    if(selected && selected.idx){
+      return this.getColumn(this.props.columns, selected.idx);
     }
-    return val;
-  },
-
-  renderCell(props: any): ReactElement {
-    if(typeof this.props.cellRenderer == 'function') {
-      this.props.cellRenderer.call(this, props);
-    }
-    if (React.isValidElement(this.props.cellRenderer)) {
-      return cloneWithProps(this.props.cellRenderer, props);
-    } else {
-      return this.props.cellRenderer(props);
-    }
-  },
-
-  getDefaultProps(): {cellRenderer: Cell} {
-    return {
-      cellRenderer: Cell,
-      isSelected: false,
-      height : 35
-    };
   },
 
 
@@ -155,27 +142,6 @@ var Row = React.createClass({
     }
   },
 
-  willRowBeDraggedOver(props: any): boolean{
-    var dragged = props.cellMetaData.dragged;
-    return  dragged != null && (dragged.rowIdx>=0 || dragged.complete === true);
-  },
-
-  hasRowBeenCopied(): boolean{
-    var copied = this.props.cellMetaData.copied;
-    return copied != null && copied.rowIdx === this.props.idx;
-  },
-
-  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    return !(ColumnMetrics.sameColumns(this.props.columns, nextProps.columns, ColumnMetrics.sameColumn)) ||
-    this.doesRowContainSelectedCell(this.props)          ||
-    this.doesRowContainSelectedCell(nextProps)           ||
-    this.willRowBeDraggedOver(nextProps)                 ||
-    nextProps.row !== this.props.row                     ||
-    this.hasRowBeenCopied()                              ||
-    this.props.isSelected !== nextProps.isSelected       ||
-    nextProps.height !== this.props.height;
-  },
-
   handleDragEnter(){
     var handleDragEnterRow = this.props.cellMetaData.handleDragEnterRow;
     if(handleDragEnterRow){
@@ -183,11 +149,45 @@ var Row = React.createClass({
     }
   },
 
-  getSelectedColumn(){
-    var selected = this.props.cellMetaData.selected;
-    if(selected && selected.idx){
-      return this.getColumn(this.props.columns, selected.idx);
+  hasRowBeenCopied(): boolean{
+    var copied = this.props.cellMetaData.copied;
+    return copied != null && copied.rowIdx === this.props.idx;
+  },
+
+  willRowBeDraggedOver(props: any): boolean{
+    var dragged = props.cellMetaData.dragged;
+    return  dragged != null && (dragged.rowIdx>=0 || dragged.complete === true);
+  },
+
+  renderCell(props: any): ReactElement {
+    if(typeof this.props.cellRenderer == 'function') {
+      this.props.cellRenderer.call(this, props);
     }
+    if (React.isValidElement(this.props.cellRenderer)) {
+      return cloneWithProps(this.props.cellRenderer, props);
+    } else {
+      return this.props.cellRenderer(props);
+    }
+  },
+
+  render(): ?ReactElement {
+    var className = joinClasses(
+      'react-grid-Row',
+      "react-grid-Row--${this.props.idx % 2 === 0 ? 'even' : 'odd'}"
+    );
+
+    var style = {
+      height: this.getRowHeight(this.props),
+      overflow: 'hidden'
+    };
+
+    var cells = this.getCells();
+    return (
+      <div {...this.props} className={className} style={style} onDragEnter={this.handleDragEnter}>
+        {React.isValidElement(this.props.row) ?
+          this.props.row : cells}
+      </div>
+    );
   }
 
 });

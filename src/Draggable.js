@@ -22,13 +22,8 @@ class Draggable extends React.Component {
     };
   }
 
-  render(): ?ReactElement {
-    var Component = this.props.component;
-    return (
-      <div {...this.props}
-        onMouseDown={this.onMouseDown}
-        className='react-grid-HeaderCell__draggable' />
-    );
+  componentWillUnmount() {
+    this.cleanUp();
   }
 
   onMouseDown(e: SyntheticMouseEvent) {
@@ -62,13 +57,18 @@ class Draggable extends React.Component {
     this.setState({drag: null});
   }
 
-  componentWillUnmount() {
-    this.cleanUp();
-  }
-
   cleanUp() {
     window.removeEventListener('mouseup', this.onMouseUp);
     window.removeEventListener('mousemove', this.onMouseMove);
+  }
+
+  render(): ?ReactElement {
+    var Component = this.props.component;
+    return (
+      <div {...this.props}
+        onMouseDown={this.onMouseDown}
+        className='react-grid-HeaderCell__draggable' />
+    );
   }
 }
 

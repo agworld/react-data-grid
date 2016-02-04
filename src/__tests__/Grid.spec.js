@@ -21,11 +21,11 @@ describe('Base Grid Tests', () => {
   }
 
   class ViewportStub extends React.Component {
-    setScrollLeft(scroll) {
-    }
-
     getScroll() {
       return {scrollLeft : 0}
+    }
+
+    setScrollLeft(scroll) {
     }
 
     render() {

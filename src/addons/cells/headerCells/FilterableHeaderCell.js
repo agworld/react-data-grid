@@ -22,16 +22,6 @@ class FilterableHeaderCell extends React.Component {
     this.props.onChange({filterTerm : val, columnKey : this.props.column.key});
   }
 
-  render(): ?ReactElement {
-    return (
-      <div>
-        <div className="form-group">
-          {this.renderInput()}
-        </div>
-      </div>
-    );
-  }
-
   renderInput(): ?ReactElement {
     if(this.props.column.filterable === false){
       return <span/>;
@@ -40,6 +30,16 @@ class FilterableHeaderCell extends React.Component {
       return (<input key={input_key} type="text" className="form-control input-sm" placeholder="Search" value={this.state.filterTerm} onChange={this.handleChange}/>)
     }
 
+  }
+
+  render(): ?ReactElement {
+    return (
+      <div>
+        <div className="form-group">
+          {this.renderInput()}
+        </div>
+      </div>
+    );
   }
 }
 

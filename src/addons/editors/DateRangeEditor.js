@@ -15,6 +15,13 @@ type DateRangeValue = { startDate: Date; endDate: Date};
 
 var DateRangeEditor = React.createClass({
 
+  getDefaultProps(): {format: string; ranges: Array<Date>}{
+    return {
+      format   : "YYYY-MM-DD",
+      ranges   : []
+    }
+  },
+
   PropTypes : {
     format : React.PropTypes.string,
     ranges : React.PropTypes.arrayOf(React.PropTypes.string),
@@ -24,14 +31,13 @@ var DateRangeEditor = React.createClass({
     }).isRequired
   },
 
-  getDefaultProps(): {format: string; ranges: Array<Date>}{
-    return {
-      format   : "YYYY-MM-DD",
-      ranges   : []
-    }
+  handleDateFilterApply(startDate: string, endDate: string){
+    this.commit({value : {startDate : startDate, endDate : endDate}});
   },
 
-  rangeSeparatorChar : ' - ',
+  isDateValid(date: Date): boolean{
+    return Moment(date, this.props.format, true).isValid();
+  },
 
   overrides : {
       checkFocus : function(){
@@ -50,19 +56,13 @@ var DateRangeEditor = React.createClass({
       }
   },
 
-  isDateValid(date: Date): boolean{
-    return Moment(date, this.props.format, true).isValid();
-  },
+  rangeSeparatorChar : ' - ',
 
   validate(value: DateRangeValue): boolean{
     return this.isDateValid(value.startDate)
     && this.isDateValid(value.endDate)
     && (Moment(value.startDate, this.props.format).isBefore(value.endDate)
     || Moment(value.startDate, this.props.format).isSame(value.endDate));
-  },
-
-  handleDateFilterApply(startDate: string, endDate: string){
-    this.commit({value : {startDate : startDate, endDate : endDate}});
   },
 
   render(): ?ReactElement{

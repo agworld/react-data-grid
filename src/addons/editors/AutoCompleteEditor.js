@@ -37,6 +37,19 @@ var AutoCompleteEditor = React.createClass({
     }
   },
 
+  getInputNode(): HTMLInputElement{
+    return ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
+  },
+
+  getLabel(item: any): string {
+    var label = this.props.label != null ? this.props.label : 'title';
+    if (typeof label === "function") {
+      return label(item);
+    } else if (typeof label === "string") {
+      return item[label];
+    }
+  },
+
   getValue(): any{
     var value, updated = {};
     if(this.hasResults() && this.isFocusedOnSuggestion()){
@@ -51,15 +64,15 @@ var AutoCompleteEditor = React.createClass({
     return updated;
   },
 
-  getInputNode(): HTMLInputElement{
-    return ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
-  },
-
-  render(): ?ReactElement {
-    var label = this.props.label != null ? this.props.label : 'title';
-    return (<div height={this.props.height} onKeyDown={this.props.onKeyDown}>
-      <ReactAutocomplete  search={this.props.search} ref="autoComplete" label={label} onChange={this.handleChange} resultIdentifier={this.props.resultIdentifier} options={this.props.options} value={{title : this.props.value}} />
-      </div>);
+  constuctValueFromParams(obj: any, props: ?Array<string>): string {
+    if(!props){
+      return '';
+    }
+    var ret = [];
+    for (var i = 0, ii = props.length; i < ii; i++) {
+      ret.push(obj[props[i]]);
+    }
+    return ret.join('|');
   },
 
   handleChange(){
@@ -75,24 +88,11 @@ var AutoCompleteEditor = React.createClass({
     return autoComplete.state.focusedValue != null;
   },
 
-  getLabel(item: any): string {
+  render(): ?ReactElement {
     var label = this.props.label != null ? this.props.label : 'title';
-    if (typeof label === "function") {
-      return label(item);
-    } else if (typeof label === "string") {
-      return item[label];
-    }
-  },
-
-  constuctValueFromParams(obj: any, props: ?Array<string>): string {
-    if(!props){
-      return '';
-    }
-    var ret = [];
-    for (var i = 0, ii = props.length; i < ii; i++) {
-      ret.push(obj[props[i]]);
-    }
-    return ret.join('|');
+    return (<div height={this.props.height} onKeyDown={this.props.onKeyDown}>
+      <ReactAutocomplete  search={this.props.search} ref="autoComplete" label={label} onChange={this.handleChange} resultIdentifier={this.props.resultIdentifier} options={this.props.options} value={{title : this.props.value}} />
+      </div>);
   }
 });
 

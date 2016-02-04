@@ -26,21 +26,12 @@ var Header = React.createClass({
     headerRows : React.PropTypes.array.isRequired
   },
 
-  render(): ?ReactElement {
-    var state = this.state.resizing || this.props;
+  getInitialState(): {resizing: any} {
+    return {resizing: null};
+  },
 
-    var className = joinClasses({
-      'react-grid-Header': true,
-      'react-grid-Header--resizing': !!this.state.resizing
-    });
-    var headerRows = this.getHeaderRows();
-
-    return (
-
-      <div {...this.props} style={this.getStyle()} className={className}>
-        {headerRows}
-      </div>
-    );
+  componentWillReceiveProps(nextProps: any) {
+    this.setState({resizing: null});
   },
 
   shouldComponentUpdate : function(nextProps: any, nextState: any): boolean{
@@ -51,6 +42,68 @@ var Header = React.createClass({
     || this.props.sortColumn != nextProps.sortColumn
     || this.props.sortDirection != nextProps.sortDirection;
     return update;
+  },
+
+  onColumnResize(column: Column, width: number) {
+    var state = this.state.resizing || this.props;
+
+    var pos = this.getColumnPosition(column);
+
+    if (pos != null) {
+      var resizing = {
+        columnMetrics: shallowCloneObject(state.columnMetrics)
+      };
+      resizing.columnMetrics = ColumnMetrics.resizeColumn(
+          resizing.columnMetrics, pos, width);
+
+      // we don't want to influence scrollLeft while resizing
+      if (resizing.columnMetrics.totalWidth < state.columnMetrics.totalWidth) {
+        resizing.columnMetrics.totalWidth = state.columnMetrics.totalWidth;
+      }
+
+      resizing.column = ColumnUtils.getColumn(resizing.columnMetrics.columns, pos);
+      this.setState({resizing});
+    }
+  },
+
+  onColumnResizeEnd(column: Column, width: number) {
+    var pos = this.getColumnPosition(column);
+    if (pos !== null && this.props.onColumnResize) {
+      this.props.onColumnResize(pos, width || column.width);
+    }
+  },
+
+  getColumnMetrics() {
+    var columnMetrics;
+    if(this.state.resizing){
+      columnMetrics = this.state.resizing.columnMetrics;
+    }else{
+      columnMetrics = this.props.columnMetrics;
+    }
+    return columnMetrics;
+  },
+
+  getColumnPosition(column: Column): ?number {
+    var columnMetrics = this.getColumnMetrics();
+    var pos = -1;
+    columnMetrics.columns.forEach((c,idx) => {
+      if(c.key === column.key){
+        pos = idx;
+      }
+    });
+    return pos === -1 ? null : pos;
+  },
+
+  getCombinedHeaderHeights(until: ?number): number {
+    var stop_at = this.props.headerRows.length;
+    if (typeof until != 'undefined')
+      stop_at = until;
+
+    var height = 0;
+    for (var index = 0; index < stop_at; index++) {
+      height += this.props.headerRows[index].height || this.props.height;
+    }
+    return height;
   },
 
   getHeaderRows(): Array<HeaderRow>{
@@ -88,62 +141,12 @@ var Header = React.createClass({
     return headerRows;
   },
 
-  getInitialState(): {resizing: any} {
-    return {resizing: null};
-  },
-
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({resizing: null});
-  },
-
-  onColumnResize(column: Column, width: number) {
-    var state = this.state.resizing || this.props;
-
-    var pos = this.getColumnPosition(column);
-
-    if (pos != null) {
-      var resizing = {
-        columnMetrics: shallowCloneObject(state.columnMetrics)
-      };
-      resizing.columnMetrics = ColumnMetrics.resizeColumn(
-          resizing.columnMetrics, pos, width);
-
-      // we don't want to influence scrollLeft while resizing
-      if (resizing.columnMetrics.totalWidth < state.columnMetrics.totalWidth) {
-        resizing.columnMetrics.totalWidth = state.columnMetrics.totalWidth;
-      }
-
-      resizing.column = ColumnUtils.getColumn(resizing.columnMetrics.columns, pos);
-      this.setState({resizing});
-    }
-  },
-
-  getColumnMetrics() {
-    var columnMetrics;
-    if(this.state.resizing){
-      columnMetrics = this.state.resizing.columnMetrics;
-    }else{
-      columnMetrics = this.props.columnMetrics;
-    }
-    return columnMetrics;
-  },
-
-  getColumnPosition(column: Column): ?number {
-    var columnMetrics = this.getColumnMetrics();
-    var pos = -1;
-    columnMetrics.columns.forEach((c,idx) => {
-      if(c.key === column.key){
-        pos = idx;
-      }
-    });
-    return pos === -1 ? null : pos;
-  },
-
-  onColumnResizeEnd(column: Column, width: number) {
-    var pos = this.getColumnPosition(column);
-    if (pos !== null && this.props.onColumnResize) {
-      this.props.onColumnResize(pos, width || column.width);
-    }
+  getStyle(): {position: string; height: number} {
+    return {
+      position: 'relative',
+      height: this.getCombinedHeaderHeights(),
+      overflow : 'hidden'
+    };
   },
 
   setScrollLeft(scrollLeft: number) {
@@ -152,24 +155,21 @@ var Header = React.createClass({
     this.refs.row.setScrollLeft(scrollLeft);
   },
 
-  getCombinedHeaderHeights(until: ?number): number {
-    var stop_at = this.props.headerRows.length;
-    if (typeof until != 'undefined')
-      stop_at = until;
+  render(): ?ReactElement {
+    var state = this.state.resizing || this.props;
 
-    var height = 0;
-    for (var index = 0; index < stop_at; index++) {
-      height += this.props.headerRows[index].height || this.props.height;
-    }
-    return height;
-  },
+    var className = joinClasses({
+      'react-grid-Header': true,
+      'react-grid-Header--resizing': !!this.state.resizing
+    });
+    var headerRows = this.getHeaderRows();
 
-  getStyle(): {position: string; height: number} {
-    return {
-      position: 'relative',
-      height: this.getCombinedHeaderHeights(),
-      overflow : 'hidden'
-    };
+    return (
+
+      <div {...this.props} style={this.getStyle()} className={className}>
+        {headerRows}
+      </div>
+    );
   },
 });
 

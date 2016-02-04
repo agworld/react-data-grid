@@ -107,12 +107,13 @@ var ReactDataGrid = React.createClass({
     return initialState;
   },
 
-  getInitialSelectedRows: function(){
-    var selectedRows = [];
-    for(var i = 0; i < this.props.rowsCount; i++){
-      selectedRows.push(false);
+  componentDidMount() {
+    var scrollOffset = 0;
+    var canvas = ReactDOM.findDOMNode(this).querySelector('.react-grid-Canvas');
+    if(canvas != null){
+        scrollOffset = canvas.offsetWidth - canvas.clientWidth;
     }
-    return selectedRows;
+    this.setState({scrollOffset: scrollOffset});
   },
 
   componentWillReceiveProps:function(nextProps: ReactDataGridProps){
@@ -121,13 +122,380 @@ var ReactDataGrid = React.createClass({
     }
   },
 
-  componentDidMount() {
-    var scrollOffset = 0;
-    var canvas = ReactDOM.findDOMNode(this).querySelector('.react-grid-Canvas');
-    if(canvas != null){
-        scrollOffset = canvas.offsetWidth - canvas.clientWidth;
+  //EXPAND ROW Functionality - removing for now till we decide on how best to implement
+  // expandRow(row: Row, newHeight: number): Array<Row>{
+  //   var expandedRows = this.state.expandedRows;
+  //   if(expandedRows[row]){
+  //     if(expandedRows[row]== null || expandedRows[row] < newHeight){
+  //       expandedRows[row] = newHeight;
+  //     }
+  //   }else{
+  //     expandedRows[row] = newHeight;
+  //   }
+  //   return expandedRows;
+  // },
+  //
+  // handleShowMore(row: Row, newHeight: number) {
+  //   var expandedRows = this.expandRow(row, newHeight);
+  //   this.setState({expandedRows : expandedRows});
+  // },
+  //
+  // handleShowLess(row: Row){
+  //   var expandedRows = this.state.expandedRows;
+  //   if(expandedRows[row]){
+  //       expandedRows[row] = false;
+  //   }
+  //   this.setState({expandedRows : expandedRows});
+  // },
+  //
+  // expandAllRows(){
+  //
+  // },
+  //
+  // collapseAllRows(){
+  //
+  // },
+
+  onAfterAddRow:function(numberOfRows: number){
+    // Unclear what this was supposed to do, at the time it only draws a blue rectangle aroung a cell
+    // this.setState({selected : {idx : 1, rowIdx : numberOfRows - 2}});
+  },
+
+  onCellClick: function(cell: SelectedType) {
+    this.onSelect({rowIdx: cell.rowIdx, idx: cell.idx});
+  },
+
+  onCellCommit(commit: RowUpdateEvent){
+    var selected = Object.assign({}, this.state.selected);
+    selected.active = false;
+    if (commit.key === 'Tab') {
+      selected.idx += 1;
     }
-    this.setState({scrollOffset: scrollOffset});
+    var expandedRows = this.state.expandedRows;
+    // if(commit.changed && commit.changed.expandedHeight){
+    //   expandedRows = this.expandRow(commit.rowIdx, commit.changed.expandedHeight);
+    // }
+    this.setState({selected : selected, expandedRows : expandedRows});
+    this.props.onRowUpdated(commit);
+
+  },
+
+  onCellDoubleClick: function(cell: SelectedType) {
+    this.onSelect({rowIdx: cell.rowIdx, idx: cell.idx});
+    this.setActive('Enter');
+  },
+
+  onDragStart(e: SyntheticEvent){
+    var value = this.getSelectedValue();
+    this.handleDragStart({idx: this.state.selected.idx, rowIdx : this.state.selected.rowIdx, value : value});
+    //need to set dummy data for FF
+    if(e && e.dataTransfer && e.dataTransfer.setData) e.dataTransfer.setData('text/plain', 'dummy');
+  },
+
+  onPressArrowDown(e: SyntheticEvent){
+    this.moveSelectedCell(e, 1, 0);
+  },
+
+  onPressArrowLeft(e: SyntheticEvent){
+    this.moveSelectedCell(e, 0, -1);
+  },
+
+  onPressArrowRight(e: SyntheticEvent){
+    this.moveSelectedCell(e, 0, 1);
+  },
+
+  onPressArrowUp(e: SyntheticEvent){
+    this.moveSelectedCell(e, -1, 0);
+  },
+
+  onPressBackspace(e: SyntheticKeyboardEvent){
+    this.setActive(e.key);
+  },
+
+  onPressChar(e: SyntheticKeyboardEvent){
+    if(this.isKeyPrintable(e.keyCode)){
+      this.setActive(e.keyCode);
+    }
+  },
+
+  onPressDelete(e: SyntheticKeyboardEvent){
+    this.setActive(e.key);
+  },
+
+  onPressEnter(e: SyntheticKeyboardEvent){
+    this.setActive(e.key);
+  },
+
+  onPressEscape(e: SyntheticKeyboardEvent){
+    this.setInactive(e.key);
+  },
+
+  onPressKeyWithCtrl(e: SyntheticKeyboardEvent){
+    var keys = {
+      KeyCode_c : 99,
+      KeyCode_C : 67,
+      KeyCode_V : 86,
+      KeyCode_v : 118,
+    }
+
+    var idx = this.state.selected.idx
+    if(this.canEdit(idx)){
+      if(e.keyCode == keys.KeyCode_c || e.keyCode == keys.KeyCode_C){
+        var value = this.getSelectedValue();
+        this.handleCopy({value : value});
+      }else if(e.keyCode == keys.KeyCode_v || e.keyCode == keys.KeyCode_V){
+        this.handlePaste();
+      }
+    }
+  },
+
+  onPressTab(e: SyntheticEvent){
+    this.moveSelectedCell(e, 0, e.shiftKey ? -1 : 1);
+  },
+
+  onSelect: function(selected: SelectedType) {
+    if(this.props.enableCellSelect){
+      if (this.state.selected.rowIdx === selected.rowIdx
+       && this.state.selected.idx === selected.idx
+       && this.state.selected.active === true) {
+       } else {
+        var idx = selected.idx;
+        var rowIdx = selected.rowIdx;
+        if (
+          idx >= 0
+          && rowIdx >= 0
+          && idx < ColumnUtils.getSize(this.state.columnMetrics.columns)
+          && rowIdx < this.props.rowsCount
+        ) {
+          this.setState({selected: selected});
+        }
+      }
+    }
+  },
+
+  onToggleFilter(){
+    this.setState({canFilter : !this.state.canFilter});
+  },
+
+  onViewportDoubleClick: function(e: Event) {
+    this.setActive();
+  },
+
+  getHeaderRows(): Array<{ref: string; height: number;}> {
+    var rows = [{ref:"row", height: this.props.rowHeight}];
+    if(this.state.canFilter === true){
+      rows.push({
+        ref:"filterRow",
+        headerCellRenderer : <FilterableHeaderCell onChange={this.props.onAddFilter} column={this.props.column}/>,
+        height : 45
+      });
+    }
+    return rows;
+  },
+
+  getInitialSelectedRows: function(){
+    var selectedRows = [];
+    for(var i = 0; i < this.props.rowsCount; i++){
+      selectedRows.push(false);
+    }
+    return selectedRows;
+  },
+
+  getRowOffsetHeight(): number{
+    var offsetHeight = 0;
+    this.getHeaderRows().forEach((row) => offsetHeight += parseFloat(row.height, 10) );
+    return offsetHeight;
+  },
+
+  getSelectedValue(): string{
+    var rowIdx = this.state.selected.rowIdx;
+    var idx = this.state.selected.idx;
+    var cellKey = this.getColumn(this.state.columnMetrics.columns, idx).key;
+    var row = this.props.rowGetter(rowIdx);
+    return RowUtils.get(row, cellKey);
+  },
+
+  setActive(keyPressed: string){
+    var rowIdx = this.state.selected.rowIdx;
+    var idx = this.state.selected.idx;
+    if(this.canEdit(idx) && !this.isActive()){
+      var selected = Object.assign(this.state.selected, {idx: idx, rowIdx: rowIdx, active : true, initialKeyCode : keyPressed});
+      this.setState({selected: selected});
+    }
+  },
+
+  setInactive(){
+    var rowIdx = this.state.selected.rowIdx;
+    var idx =this.state.selected.idx;
+    if(this.canEdit(idx) && this.isActive()){
+      var selected = Object.assign(this.state.selected, {idx: idx, rowIdx: rowIdx, active : false});
+      this.setState({selected: selected});
+    }
+  },
+
+  setupGridColumns : function(): Array<any>{
+    var cols = this.props.columns.slice(0);
+    if(this.props.enableRowSelect){
+      var selectColumn = {
+          key: 'select-row',
+          name: '',
+          formatter : <CheckboxEditor/>,
+          onCellChange : this.handleRowSelect,
+          filterable : false,
+          headerRenderer : <input type="checkbox" onChange={this.handleCheckboxChange} />,
+          width : 60,
+          locked: true
+      };
+      var unshiftedCols = cols.unshift(selectColumn);
+      cols = unshiftedCols > 0 ? cols : unshiftedCols;
+    }
+    return cols;
+  },
+
+  canEdit(idx: number): boolean{
+    var col = this.getColumn(this.props.columns, idx);
+    return this.props.enableCellSelect === true && ((col.editor != null) || col.editable);
+  },
+
+  clearSelectedRows() {
+    this.setState({selectedRows : this.getInitialSelectedRows()});
+  },
+
+copyPasteEnabled: function(): boolean {
+    return this.props.onCellCopyPaste !== null;
+  },
+  dragEnabled: function(): boolean {
+    return this.props.onCellsDragged !== null;
+  },
+
+  handleCheckboxChange : function(e: SyntheticEvent){
+    var allRowsSelected;
+    if(e.currentTarget instanceof HTMLInputElement && e.currentTarget.checked === true){
+      allRowsSelected = true;
+    }else{
+      allRowsSelected = false;
+    }
+    var selectedRows = [];
+    for(var i = 0; i < this.props.rowsCount; i++){
+      selectedRows.push(allRowsSelected);
+    }
+    this.setState({selectedRows : selectedRows});
+    this.handleRowSelectPropagation(selectedRows);
+  },
+
+  handleCopy(args: {value: string}){
+    if(!this.copyPasteEnabled()) { return; }
+      var textToCopy = args.value;
+      var selected = this.state.selected;
+      var copied = {idx : selected.idx, rowIdx : selected.rowIdx};
+      this.setState({textToCopy:textToCopy, copied : copied});
+  },
+
+
+  handleDragEnd(){
+    if(!this.dragEnabled()) { return; }
+      var fromRow, toRow;
+      var selected = this.state.selected;
+      var dragged = this.state.dragged;
+      var cellKey = this.getColumn(this.state.columnMetrics.columns, this.state.selected.idx).key;
+      fromRow = selected.rowIdx < dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
+      toRow   = selected.rowIdx > dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
+      if(this.props.onCellsDragged) {
+        this.props.onCellsDragged({cellKey: cellKey , fromRow: fromRow, toRow : toRow, value : dragged.value});
+      }
+      this.setState({dragged : {complete : true}});
+  },
+
+  handleDragEnter(row: any){
+    if(!this.dragEnabled()) { return; }
+      var selected = this.state.selected;
+      var dragged = this.state.dragged;
+      dragged.overRowIdx = row;
+      this.setState({dragged : dragged});
+  },
+
+  handleDragStart(dragged: DraggedType){
+    if(!this.dragEnabled()) { return; }
+      var idx = dragged.idx;
+      var rowIdx = dragged.rowIdx;
+      if (
+        idx >= 0
+        && rowIdx >= 0
+        && idx < this.getSize()
+        && rowIdx < this.props.rowsCount
+      ) {
+        this.setState({dragged: dragged});
+      }
+  },
+
+  handlePaste(){
+    if(!this.copyPasteEnabled()) { return; }
+      var selected = this.state.selected;
+
+      var cellKey = this.getColumn(this.state.columnMetrics.columns, this.state.selected.idx).key;
+      if(this.props.onCellCopyPaste) {
+        this.props.onCellCopyPaste({cellKey: cellKey , rowIdx: selected.rowIdx, value : this.state.textToCopy, fromRow : this.state.copied.rowIdx, toRow : selected.rowIdx});
+      }
+      this.setState({copied : null});
+  },
+
+  // columnKey not used here as this function will select the whole row,
+  // but needed to match the function signature in the CheckboxEditor
+  handleRowSelect(rowIdx: number, columnKey: string, e: Event){
+    e.stopPropagation();
+    if(this.state.selectedRows != null && this.state.selectedRows.length > 0){
+      var rowSelectionStates = this.state.selectedRows.slice();
+      if(rowSelectionStates[rowIdx] == null || rowSelectionStates[rowIdx] == false){
+        rowSelectionStates[rowIdx] = true;
+      }else{
+        rowSelectionStates[rowIdx] = false;
+      }
+      this.setState({selectedRows : rowSelectionStates});
+      this.handleRowSelectPropagation(rowSelectionStates);
+    }
+  },
+
+  handleRowSelectPropagation(rowSelectionStates: Array){
+    if(this.props.onRowSelect != null){
+      var selectedRows = [];
+      for(var i = 0; i < this.props.rowsCount; i++){
+        if(rowSelectionStates[i] === true){
+          var row = this.props.rowGetter(i);
+          selectedRows.push(row)
+        }
+      }
+      this.props.onRowSelect(selectedRows);
+    }
+  },
+
+  handleSort: function(columnKey: string, direction: SortType) {
+    this.setState({sortDirection: direction, sortColumn: columnKey});
+  },
+
+  handleTerminateDrag(){
+    if(!this.dragEnabled()) { return; }
+      this.setState({dragged: null});
+  },
+
+  isActive(): boolean{
+    return this.state.selected.active === true;
+  },
+
+  moveSelectedCell(e: SyntheticEvent, rowDelta: number, cellDelta: number){
+    // we need to prevent default as we control grid scroll
+    //otherwise it moves every time you left/right which is janky
+    e.preventDefault();
+    var rowIdx = this.state.selected.rowIdx + rowDelta;
+    var idx = this.state.selected.idx + cellDelta;
+    this.onSelect({idx: idx, rowIdx: rowIdx});
+  },
+
+  renderToolbar(): ReactElement {
+    var Toolbar = this.props.toolbar;
+    if(React.isValidElement(Toolbar)){
+      return( cloneWithProps(Toolbar, {onToggleFilter : this.onToggleFilter, numberOfRows : this.props.rowsCount}));
+    }
+
   },
 
   render: function(): ?ReactElement {
@@ -182,374 +550,6 @@ var ReactDataGrid = React.createClass({
           </div>
         </div>
       )
-  },
-
-  renderToolbar(): ReactElement {
-    var Toolbar = this.props.toolbar;
-    if(React.isValidElement(Toolbar)){
-      return( cloneWithProps(Toolbar, {onToggleFilter : this.onToggleFilter, numberOfRows : this.props.rowsCount}));
-    }
-
-  },
-
-  onSelect: function(selected: SelectedType) {
-    if(this.props.enableCellSelect){
-      if (this.state.selected.rowIdx === selected.rowIdx
-       && this.state.selected.idx === selected.idx
-       && this.state.selected.active === true) {
-       } else {
-        var idx = selected.idx;
-        var rowIdx = selected.rowIdx;
-        if (
-          idx >= 0
-          && rowIdx >= 0
-          && idx < ColumnUtils.getSize(this.state.columnMetrics.columns)
-          && rowIdx < this.props.rowsCount
-        ) {
-          this.setState({selected: selected});
-        }
-      }
-    }
-  },
-
-  onCellClick: function(cell: SelectedType) {
-    this.onSelect({rowIdx: cell.rowIdx, idx: cell.idx});
-  },
-
-  onCellDoubleClick: function(cell: SelectedType) {
-    this.onSelect({rowIdx: cell.rowIdx, idx: cell.idx});
-    this.setActive('Enter');
-  },
-
-  onViewportDoubleClick: function(e: Event) {
-    this.setActive();
-  },
-
-  onPressArrowUp(e: SyntheticEvent){
-    this.moveSelectedCell(e, -1, 0);
-  },
-
-  onPressArrowDown(e: SyntheticEvent){
-    this.moveSelectedCell(e, 1, 0);
-  },
-
-  onPressArrowLeft(e: SyntheticEvent){
-    this.moveSelectedCell(e, 0, -1);
-  },
-
-  onPressArrowRight(e: SyntheticEvent){
-    this.moveSelectedCell(e, 0, 1);
-  },
-
-  onPressTab(e: SyntheticEvent){
-    this.moveSelectedCell(e, 0, e.shiftKey ? -1 : 1);
-  },
-
-  onPressEnter(e: SyntheticKeyboardEvent){
-    this.setActive(e.key);
-  },
-
-  onPressDelete(e: SyntheticKeyboardEvent){
-    this.setActive(e.key);
-  },
-
-  onPressEscape(e: SyntheticKeyboardEvent){
-    this.setInactive(e.key);
-  },
-
-  onPressBackspace(e: SyntheticKeyboardEvent){
-    this.setActive(e.key);
-  },
-
-  onPressChar(e: SyntheticKeyboardEvent){
-    if(this.isKeyPrintable(e.keyCode)){
-      this.setActive(e.keyCode);
-    }
-  },
-
-  onPressKeyWithCtrl(e: SyntheticKeyboardEvent){
-    var keys = {
-      KeyCode_c : 99,
-      KeyCode_C : 67,
-      KeyCode_V : 86,
-      KeyCode_v : 118,
-    }
-
-    var idx = this.state.selected.idx
-    if(this.canEdit(idx)){
-      if(e.keyCode == keys.KeyCode_c || e.keyCode == keys.KeyCode_C){
-        var value = this.getSelectedValue();
-        this.handleCopy({value : value});
-      }else if(e.keyCode == keys.KeyCode_v || e.keyCode == keys.KeyCode_V){
-        this.handlePaste();
-      }
-    }
-  },
-
-  onDragStart(e: SyntheticEvent){
-    var value = this.getSelectedValue();
-    this.handleDragStart({idx: this.state.selected.idx, rowIdx : this.state.selected.rowIdx, value : value});
-    //need to set dummy data for FF
-    if(e && e.dataTransfer && e.dataTransfer.setData) e.dataTransfer.setData('text/plain', 'dummy');
-  },
-
-  moveSelectedCell(e: SyntheticEvent, rowDelta: number, cellDelta: number){
-    // we need to prevent default as we control grid scroll
-    //otherwise it moves every time you left/right which is janky
-    e.preventDefault();
-    var rowIdx = this.state.selected.rowIdx + rowDelta;
-    var idx = this.state.selected.idx + cellDelta;
-    this.onSelect({idx: idx, rowIdx: rowIdx});
-  },
-
-  getSelectedValue(): string{
-    var rowIdx = this.state.selected.rowIdx;
-    var idx = this.state.selected.idx;
-    var cellKey = this.getColumn(this.state.columnMetrics.columns, idx).key;
-    var row = this.props.rowGetter(rowIdx);
-    return RowUtils.get(row, cellKey);
-  },
-
-  setActive(keyPressed: string){
-    var rowIdx = this.state.selected.rowIdx;
-    var idx = this.state.selected.idx;
-    if(this.canEdit(idx) && !this.isActive()){
-      var selected = Object.assign(this.state.selected, {idx: idx, rowIdx: rowIdx, active : true, initialKeyCode : keyPressed});
-      this.setState({selected: selected});
-    }
-  },
-
-  setInactive(){
-    var rowIdx = this.state.selected.rowIdx;
-    var idx =this.state.selected.idx;
-    if(this.canEdit(idx) && this.isActive()){
-      var selected = Object.assign(this.state.selected, {idx: idx, rowIdx: rowIdx, active : false});
-      this.setState({selected: selected});
-    }
-  },
-
-  canEdit(idx: number): boolean{
-    var col = this.getColumn(this.props.columns, idx);
-    return this.props.enableCellSelect === true && ((col.editor != null) || col.editable);
-  },
-
-  isActive(): boolean{
-    return this.state.selected.active === true;
-  },
-
-  onCellCommit(commit: RowUpdateEvent){
-    var selected = Object.assign({}, this.state.selected);
-    selected.active = false;
-    if (commit.key === 'Tab') {
-      selected.idx += 1;
-    }
-    var expandedRows = this.state.expandedRows;
-    // if(commit.changed && commit.changed.expandedHeight){
-    //   expandedRows = this.expandRow(commit.rowIdx, commit.changed.expandedHeight);
-    // }
-    this.setState({selected : selected, expandedRows : expandedRows});
-    this.props.onRowUpdated(commit);
-
-  },
-
-  setupGridColumns : function(): Array<any>{
-    var cols = this.props.columns.slice(0);
-    if(this.props.enableRowSelect){
-      var selectColumn = {
-          key: 'select-row',
-          name: '',
-          formatter : <CheckboxEditor/>,
-          onCellChange : this.handleRowSelect,
-          filterable : false,
-          headerRenderer : <input type="checkbox" onChange={this.handleCheckboxChange} />,
-          width : 60,
-          locked: true
-      };
-      var unshiftedCols = cols.unshift(selectColumn);
-      cols = unshiftedCols > 0 ? cols : unshiftedCols;
-    }
-    return cols;
-  },
-
-  handleCheckboxChange : function(e: SyntheticEvent){
-    var allRowsSelected;
-    if(e.currentTarget instanceof HTMLInputElement && e.currentTarget.checked === true){
-      allRowsSelected = true;
-    }else{
-      allRowsSelected = false;
-    }
-    var selectedRows = [];
-    for(var i = 0; i < this.props.rowsCount; i++){
-      selectedRows.push(allRowsSelected);
-    }
-    this.setState({selectedRows : selectedRows});
-    this.handleRowSelectPropagation(selectedRows);
-  },
-
-// columnKey not used here as this function will select the whole row,
-// but needed to match the function signature in the CheckboxEditor
-  handleRowSelect(rowIdx: number, columnKey: string, e: Event){
-    e.stopPropagation();
-    if(this.state.selectedRows != null && this.state.selectedRows.length > 0){
-      var rowSelectionStates = this.state.selectedRows.slice();
-      if(rowSelectionStates[rowIdx] == null || rowSelectionStates[rowIdx] == false){
-        rowSelectionStates[rowIdx] = true;
-      }else{
-        rowSelectionStates[rowIdx] = false;
-      }
-      this.setState({selectedRows : rowSelectionStates});
-      this.handleRowSelectPropagation(rowSelectionStates);
-    }
-  },
-  handleRowSelectPropagation(rowSelectionStates: Array){
-    if(this.props.onRowSelect != null){
-      var selectedRows = [];
-      for(var i = 0; i < this.props.rowsCount; i++){
-        if(rowSelectionStates[i] === true){
-          var row = this.props.rowGetter(i);
-          selectedRows.push(row)
-        }
-      }
-      this.props.onRowSelect(selectedRows);
-    }
-  },
-
-  //EXPAND ROW Functionality - removing for now till we decide on how best to implement
-  // expandRow(row: Row, newHeight: number): Array<Row>{
-  //   var expandedRows = this.state.expandedRows;
-  //   if(expandedRows[row]){
-  //     if(expandedRows[row]== null || expandedRows[row] < newHeight){
-  //       expandedRows[row] = newHeight;
-  //     }
-  //   }else{
-  //     expandedRows[row] = newHeight;
-  //   }
-  //   return expandedRows;
-  // },
-  //
-  // handleShowMore(row: Row, newHeight: number) {
-  //   var expandedRows = this.expandRow(row, newHeight);
-  //   this.setState({expandedRows : expandedRows});
-  // },
-  //
-  // handleShowLess(row: Row){
-  //   var expandedRows = this.state.expandedRows;
-  //   if(expandedRows[row]){
-  //       expandedRows[row] = false;
-  //   }
-  //   this.setState({expandedRows : expandedRows});
-  // },
-  //
-  // expandAllRows(){
-  //
-  // },
-  //
-  // collapseAllRows(){
-  //
-  // },
-
-  onAfterAddRow:function(numberOfRows: number){
-    // Unclear what this was supposed to do, at the time it only draws a blue rectangle aroung a cell
-    // this.setState({selected : {idx : 1, rowIdx : numberOfRows - 2}});
-  },
-
-  onToggleFilter(){
-    this.setState({canFilter : !this.state.canFilter});
-  },
-
-
-  getHeaderRows(): Array<{ref: string; height: number;}> {
-    var rows = [{ref:"row", height: this.props.rowHeight}];
-    if(this.state.canFilter === true){
-      rows.push({
-        ref:"filterRow",
-        headerCellRenderer : <FilterableHeaderCell onChange={this.props.onAddFilter} column={this.props.column}/>,
-        height : 45
-      });
-    }
-    return rows;
-  },
-
-  getRowOffsetHeight(): number{
-    var offsetHeight = 0;
-    this.getHeaderRows().forEach((row) => offsetHeight += parseFloat(row.height, 10) );
-    return offsetHeight;
-  },
-
-  handleSort: function(columnKey: string, direction: SortType) {
-    this.setState({sortDirection: direction, sortColumn: columnKey});
-  },
-
-  copyPasteEnabled: function(): boolean {
-    return this.props.onCellCopyPaste !== null;
-  },
-
-  handleCopy(args: {value: string}){
-    if(!this.copyPasteEnabled()) { return; }
-      var textToCopy = args.value;
-      var selected = this.state.selected;
-      var copied = {idx : selected.idx, rowIdx : selected.rowIdx};
-      this.setState({textToCopy:textToCopy, copied : copied});
-  },
-
-  handlePaste(){
-    if(!this.copyPasteEnabled()) { return; }
-      var selected = this.state.selected;
-
-      var cellKey = this.getColumn(this.state.columnMetrics.columns, this.state.selected.idx).key;
-      if(this.props.onCellCopyPaste) {
-        this.props.onCellCopyPaste({cellKey: cellKey , rowIdx: selected.rowIdx, value : this.state.textToCopy, fromRow : this.state.copied.rowIdx, toRow : selected.rowIdx});
-      }
-      this.setState({copied : null});
-  },
-
-  dragEnabled: function(): boolean {
-    return this.props.onCellsDragged !== null;
-  },
-
-  handleDragStart(dragged: DraggedType){
-    if(!this.dragEnabled()) { return; }
-      var idx = dragged.idx;
-      var rowIdx = dragged.rowIdx;
-      if (
-        idx >= 0
-        && rowIdx >= 0
-        && idx < this.getSize()
-        && rowIdx < this.props.rowsCount
-      ) {
-        this.setState({dragged: dragged});
-      }
-  },
-
-  handleDragEnter(row: any){
-    if(!this.dragEnabled()) { return; }
-      var selected = this.state.selected;
-      var dragged = this.state.dragged;
-      dragged.overRowIdx = row;
-      this.setState({dragged : dragged});
-  },
-
-  handleDragEnd(){
-    if(!this.dragEnabled()) { return; }
-      var fromRow, toRow;
-      var selected = this.state.selected;
-      var dragged = this.state.dragged;
-      var cellKey = this.getColumn(this.state.columnMetrics.columns, this.state.selected.idx).key;
-      fromRow = selected.rowIdx < dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
-      toRow   = selected.rowIdx > dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
-      if(this.props.onCellsDragged) {
-        this.props.onCellsDragged({cellKey: cellKey , fromRow: fromRow, toRow : toRow, value : dragged.value});
-      }
-      this.setState({dragged : {complete : true}});
-  },
-
-  handleTerminateDrag(){
-    if(!this.dragEnabled()) { return; }
-      this.setState({dragged: null});
-  },
-
-  clearSelectedRows() {
-    this.setState({selectedRows : this.getInitialSelectedRows()});
   }
 });
 

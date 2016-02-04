@@ -15,8 +15,6 @@ var ViewportScroll      = require('./ViewportScrollMixin');
 
 
 var Viewport = React.createClass({
-  mixins: [ViewportScroll],
-
   propTypes: {
     rowOffsetHeight: PropTypes.number.isRequired,
     totalWidth: PropTypes.number.isRequired,
@@ -33,6 +31,8 @@ var Viewport = React.createClass({
     groupOnAttribute: PropTypes.array
   },
 
+  mixins: [ViewportScroll],
+
   getDefaultProps: function() {
     var defaultGridSort = function(a, b) {
       if (a==null) return 1;
@@ -44,14 +44,14 @@ var Viewport = React.createClass({
     };
   },
 
-  componentWillMount: function() {
-    this.getGroupedRows();
-  },
-
   getInitialState: function() {
       return {
         rows: [],
       };
+  },
+
+  componentWillMount: function() {
+    this.getGroupedRows();
   },
 
   componentDidUpdate: function(prevProps, prevState) {
@@ -62,11 +62,44 @@ var Viewport = React.createClass({
     }
   },
 
+  onScroll(scroll: {scrollTop: number; scrollLeft: number}) {
+    this.updateScroll(
+      scroll.scrollTop, scroll.scrollLeft,
+      this.state.height,
+      this.props.rowHeight,
+      this.props.rowsCount
+    );
+
+    if (this.props.onScroll) {
+      this.props.onScroll({scrollTop: scroll.scrollTop, scrollLeft: scroll.scrollLeft});
+    }
+  },
+
+  getAllRows: function() {
+    if (Array.isArray(this.props.rowGetter)) {
+      return this.props.rowGetter.slice(0, this.props.rowsCount);
+    } else {
+      var rows = [];
+      for (var i = 0; i < this.props.rowsCount; i++){
+        rows.push(this.props.rowGetter(i));
+      }
+      return rows;
+    }
+  },
+
   getGroupedRows: function() {
     var allRows = this.getAllRows();
     var groupedRows = this.groupByRowAttributes(this.props.groupOnAttribute, allRows);
     var rows = this.flattenGroupedRows(groupedRows, []);
     this.setState({rows: rows});
+  },
+
+  getScroll(): {scrollLeft: number; scrollTop: number} {
+    return this.refs.canvas.getScroll();
+  },
+
+  setScrollLeft(scrollLeft: number) {
+    this.refs.canvas.setScrollLeft(scrollLeft);
   },
 
   flattenGroupedRows: function(groupedRows, flattenedRows) {
@@ -83,22 +116,6 @@ var Viewport = React.createClass({
       groupedRows.forEach((r) => flattenedRows.push({type:'single', data: r}));
       return  flattenedRows;
     }
-  },
-
-  sortRows: function(sortColumn, sortDirection , rows){
-    if(!sortColumn || !rows) return rows;
-    var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
-    var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
-
-    var that = this;
-    var comparer = function(a, b) {
-      if(sortDirection === 'ASC'){
-        return onSort(a[sortColumn], b[sortColumn]);
-      }else if(sortDirection === 'DESC'){
-        return onSort(b[sortColumn], a[sortColumn]);
-      }
-    }
-    return rows.sort(comparer);
   },
 
   groupByRowAttributes: function(attrs: any, rows: any) {
@@ -141,16 +158,20 @@ var Viewport = React.createClass({
     return groupedRows;
   },
 
-  getAllRows: function() {
-    if (Array.isArray(this.props.rowGetter)) {
-      return this.props.rowGetter.slice(0, this.props.rowsCount);
-    } else {
-      var rows = [];
-      for (var i = 0; i < this.props.rowsCount; i++){
-        rows.push(this.props.rowGetter(i));
+  sortRows: function(sortColumn, sortDirection , rows){
+    if(!sortColumn || !rows) return rows;
+    var column = $.grep(this.props.columns, function(e){ return e.key == sortColumn; })[0];
+    var onSort = column.hasOwnProperty("sortingFunction") ? column.sortingFunction : this.props.onGridSort;
+
+    var that = this;
+    var comparer = function(a, b) {
+      if(sortDirection === 'ASC'){
+        return onSort(a[sortColumn], b[sortColumn]);
+      }else if(sortDirection === 'DESC'){
+        return onSort(b[sortColumn], a[sortColumn]);
       }
-      return rows;
     }
+    return rows.sort(comparer);
   },
 
   render(): ?ReactElement {
@@ -193,27 +214,6 @@ var Viewport = React.createClass({
           />
       </div>
     );
-  },
-
-  getScroll(): {scrollLeft: number; scrollTop: number} {
-    return this.refs.canvas.getScroll();
-  },
-
-  onScroll(scroll: {scrollTop: number; scrollLeft: number}) {
-    this.updateScroll(
-      scroll.scrollTop, scroll.scrollLeft,
-      this.state.height,
-      this.props.rowHeight,
-      this.props.rowsCount
-    );
-
-    if (this.props.onScroll) {
-      this.props.onScroll({scrollTop: scroll.scrollTop, scrollLeft: scroll.scrollLeft});
-    }
-  },
-
-  setScrollLeft(scrollLeft: number) {
-    this.refs.canvas.setScrollLeft(scrollLeft);
   }
 });
 

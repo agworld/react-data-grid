@@ -43,6 +43,13 @@ var Grid = React.createClass({
   ],
 
 
+  getDefaultProps() {
+    return {
+      rowHeight: 35,
+      minHeight: 350
+    };
+  },
+
   getStyle: function(): { overflow: string; outline: number; position: string; minHeight: number } {
     return{
       overflow: 'hidden',
@@ -93,13 +100,6 @@ var Grid = React.createClass({
           </div>
       </div>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      rowHeight: 35,
-      minHeight: 350
-    };
   },
 });
 

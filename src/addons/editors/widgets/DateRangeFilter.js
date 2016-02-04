@@ -1095,10 +1095,6 @@ var validateDate = function(props, propName, componentName) {
 
 var DateRangeFilter = React.createClass({
 
-	getInitialState : function(){
-		return {dateRange : ''};
-	},
-
 	propTypes : {
 		format    : React.PropTypes.string.isRequired,
 		ranges    : React.PropTypes.object.isRequired,
@@ -1107,6 +1103,10 @@ var DateRangeFilter = React.createClass({
 		onblur   	: React.PropTypes.func,
 		startDate : validateDate,
 		endDate   : validateDate
+	},
+
+	getInitialState : function(){
+		return {dateRange : ''};
 	},
 
 	componentDidMount : function(){
@@ -1128,6 +1128,10 @@ var DateRangeFilter = React.createClass({
 		this.calendar.remove();
 	},
 
+	getTitle : function(){
+		return this.state.dateRange !== '' ? this.state.dateRange : this.props.title;
+	},
+
 	handleApply : function(ev, picker) {
 		if(this.props.onApply){
 			//return moment instances for start and end date ranges
@@ -1142,10 +1146,6 @@ var DateRangeFilter = React.createClass({
 			//return moment instances for start and end date ranges
 			this.props.onApply(null, null);
 		}
-	},
-
-	getTitle : function(){
-		return this.state.dateRange !== '' ? this.state.dateRange : this.props.title;
 	},
 
 	render: function() {

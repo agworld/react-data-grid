@@ -13,6 +13,15 @@ var ExcelColumn             = require('../grids/ExcelColumn');
 
 class EditorBase extends React.Component {
 
+  getInputNode(): HTMLInputElement{
+    var domNode = ReactDOM.findDOMNode(this);
+    if(domNode.tagName === 'INPUT'){
+      return domNode;
+    }else{
+      return domNode.querySelector("input:not([type=hidden])");
+    }
+  }
+
   getStyle(): {width: string}{
     return {
       width : '100%'
@@ -23,15 +32,6 @@ class EditorBase extends React.Component {
     var updated = {};
     updated[this.props.column.key] = this.getInputNode().value;
     return updated;
-  }
-
-  getInputNode(): HTMLInputElement{
-    var domNode = ReactDOM.findDOMNode(this);
-    if(domNode.tagName === 'INPUT'){
-      return domNode;
-    }else{
-      return domNode.querySelector("input:not([type=hidden])");
-    }
   }
 
   inheritContainerStyles(): boolean{

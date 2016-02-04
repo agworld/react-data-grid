@@ -25,14 +25,6 @@ var ImageFormatter = React.createClass({
     }
   },
 
-  render() {
-    var style = this.state.value ?
-    { backgroundImage : 'url(' + this.state.value + ')'} :
-    undefined;
-
-    return <div className="react-grid-image" style={style} />;
-  },
-
   _load(/*string*/ src) {
     if (ReadyPool[src]) {
       this.setState({value: src});
@@ -64,6 +56,14 @@ var ImageFormatter = React.createClass({
         value: src,
       });
     }
+  },
+
+  render() {
+    var style = this.state.value ?
+    { backgroundImage : 'url(' + this.state.value + ')'} :
+    undefined;
+
+    return <div className="react-grid-image" style={style} />;
   },
 });
 
