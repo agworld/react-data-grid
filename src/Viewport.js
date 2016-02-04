@@ -116,13 +116,15 @@ var Viewport = React.createClass({
       var attribute_name, attribute_value;
       switch (typeof(attribute)){
         case 'function':
-          var reactComponent = React.createElement(attribute, {row: row});
+          var reactComponent = <attribute row={row} />;
           attribute_name = row[reactComponent.props.name.toString()];
           attribute_value = reactComponent;
           break;
         case 'string':
           attribute_name = row[attribute];
-          attribute_value = React.createElement('div', {className: 'groupName', style: {padding: '6px', fontSize: '16px', fontWeight: 'bold'}}, attribute_name.toString());
+          attribute_value = <div
+            className="groupName"
+            style={{padding: '6px', fontSize: '16px', fontWeight: 'bold'}}>{attribute_name.toString()}</div>;
           break;
         default:
           if (row[attribute] == 'undefined') return;
