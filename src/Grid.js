@@ -2,7 +2,6 @@ const React                = require('react');
 const PropTypes            = React.PropTypes;
 const Header               = require('./Header');
 const Viewport             = require('./Viewport');
-const ExcelColumn = require('./addons/grids/ExcelColumn');
 const GridScrollMixin      = require('./GridScrollMixin');
 const DOMMetrics           = require('./DOMMetrics');
 
@@ -44,7 +43,7 @@ const Grid = React.createClass({
     }
   },
 
-  render(): ?ReactElement {
+  render() {
     var headerRows = this.props.headerRows || [{ref : 'row'}];
     return (
       <div {...this.props} style={this.getStyle()} className="react-grid-Grid">

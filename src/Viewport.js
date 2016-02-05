@@ -1,10 +1,7 @@
 const React             = require('react');
 const Canvas            = require('./Canvas');
 const PropTypes            = React.PropTypes;
-
 const ViewportScroll      = require('./ViewportScrollMixin');
-
-
 
 const Viewport = React.createClass({
   mixins: [ViewportScroll],
@@ -143,7 +140,7 @@ const Viewport = React.createClass({
     }
   },
 
-  render(): ?ReactElement {
+  render() {
 
     var style = {
       padding: 0,

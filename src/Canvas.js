@@ -5,7 +5,6 @@ const cloneWithProps  = require('react/lib/cloneWithProps');
 const shallowEqual    = require('react-addons-shallow-compare');
 const ScrollShim      = require('./ScrollShim');
 const Row             = require('./Row');
-const ExcelColumn     = require('./addons/grids/ExcelColumn');
 const RowContainer    = require('./RowContainer');
 
 const Canvas = React.createClass({
@@ -27,7 +26,7 @@ const Canvas = React.createClass({
     groupOnAttribute: PropTypes.array
   },
 
-  render(): ?ReactElement {
+  render() {
     var displayStart = this.state.displayStart;
     var displayEnd = this.state.displayEnd;
     var rowHeight = this.props.rowHeight;
