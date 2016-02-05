@@ -132,6 +132,10 @@
   }
 }
 
+.react-grid-HeaderCell__draggable {
+  cursor: col-resize
+}
+
 .react-grid-ScrollShim {
   z-index: 10002;
 }
@@ -208,6 +212,11 @@
 }
 .react-grid-Cell:focus {
   outline: none;
+}
+
+.react-grid-Cell--locked:last-of-type {
+  border-right: 1px solid @table-border-color;
+  box-shadow: @react-grid-shadow-locked;
 }
 
 .react-autocomplete-Autocomplete__search {

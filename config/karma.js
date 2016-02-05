@@ -10,6 +10,7 @@ var RELEASE = !!argv.release;
 var DEBUG = !!argv.debug;
 var BROWSERS = argv.browsers;
 
+
 module.exports = function (config) {
 
   function getPostLoaders(){
@@ -45,19 +46,51 @@ module.exports = function (config) {
     return browsers;
   };
 
+  function getFiles() {
+    var files;
+    if(RELEASE === true ||  DEBUG === true) {
+      files = [
+     'node_modules/es5-shim/es5-shim.js',
+     'node_modules/es5-shim/es5-sham.js',
+     'test/FullTests.jsx'
+     ]
+    } else {
+    files = [
+     'node_modules/es5-shim/es5-shim.js',
+     'node_modules/es5-shim/es5-sham.js',
+     'test/unitTests.jsx'
+     ]
+    }
+    return files;
+  }
+
+  function getPreprocessors() {
+    var preprocessors;
+    if(RELEASE === true ||  DEBUG === true) {
+      preprocessors = {
+        'test/FullTests.jsx': ['webpack']
+      }
+    } else {
+      preprocessors = {'test/unitTests.jsx': ['webpack']}
+    }
+    return preprocessors;
+  }
+
+  function lookupPhantomJS() {
+    try {
+      return require('phantomjs').path;
+    } catch(e){
+      return;
+    }
+  }
+
   config.set({
 
     basePath: path.join(__dirname, '../'),
 
-    files: [
-    'node_modules/es5-shim/es5-shim.js',
-    'node_modules/es5-shim/es5-sham.js',
-    'test/index.jsx'
-    ],
+    files: getFiles(),
 
-    preprocessors: {
-      'test/index.jsx': ['webpack']
-    },
+    preprocessors: getPreprocessors(),
 
     webpack: {
       module: {
@@ -109,7 +142,10 @@ module.exports = function (config) {
 
     autoWatch: false,
 
-    frameworks: ['jasmine'],
+    frameworks: [
+      'jasmine',
+      'jasmine-matchers'
+    ],
 
     browsers: getBrowsers(),
 
@@ -119,6 +155,7 @@ module.exports = function (config) {
     'karma-phantomjs-launcher-nonet',
     'karma-ie-launcher',
     'karma-jasmine',
+    'karma-jasmine-matchers',
     'karma-webpack',
     'karma-junit-reporter',
     'karma-coverage'
@@ -138,6 +175,8 @@ module.exports = function (config) {
     phantomjsLauncher: {
       // configure PhantomJS executable for each platform
       cmd: {
+        linux: lookupPhantomJS(),
+        darwin: lookupPhantomJS(),
         win32: path.join(__dirname, '../test/browser/phantomjs.exe')
       }
     }

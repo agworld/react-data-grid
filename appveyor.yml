@@ -31,8 +31,9 @@ install:
   - set PATH=%APPDATA%\npm;%PATH%
   - npm install -g gulp
   - npm install
-  - gulp flow-win
+  - gulp flow
   - gulp dist
+  - gulp examples
 
 # Post-install test scripts.
 test_script:
@@ -41,9 +42,11 @@ test_script:
   - npm --version
   # run tests
   - gulp test --release true
+  - ps: ./test/uploadResults.ps1
   - gulp coveralls
 
-# Don't actually build.
+
+# Don't run MS build step
 build: off
 
 cache:

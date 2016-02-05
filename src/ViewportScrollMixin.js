@@ -1,14 +1,10 @@
-/* TODO@flow mixins */
-
-var React             = require('react');
-var DOMMetrics        = require('./DOMMetrics');
-var getWindowSize     = require('./getWindowSize');
-
-var PropTypes            = React.PropTypes;
-var min   = Math.min;
-var max   = Math.max;
-var floor = Math.floor;
-var ceil  = Math.ceil;
+const React             = require('react');
+const ReactDOM = require('react-dom');
+const DOMMetrics        = require('./DOMMetrics');
+const min   = Math.min;
+const max   = Math.max;
+const floor = Math.floor;
+const ceil  = Math.ceil;
 
 type ViewportScrollState = {
   displayStart: number;
@@ -23,7 +19,7 @@ module.exports = {
 
   DOMMetrics: {
     viewportHeight(): number {
-      return React.findDOMNode(this).offsetHeight;
+      return ReactDOM.findDOMNode(this).offsetHeight;
     }
   },
 
@@ -43,8 +39,8 @@ module.exports = {
   },
 
   getGridState(props: {rowHeight: number; rowsCount: number; minHeight: number}): ViewportScrollState  {
-	var renderedRowsCount = ceil((props.minHeight - props.rowHeight) / props.rowHeight);
-	var totalRowCount = min(renderedRowsCount * 2 , props.rowsCount);
+    let renderedRowsCount = ceil((props.minHeight - props.rowHeight) / props.rowHeight);
+    let totalRowCount = min(renderedRowsCount * 2, props.rowsCount);
     return {
       displayStart: 0,
       displayEnd: totalRowCount,
@@ -55,23 +51,23 @@ module.exports = {
   },
 
   updateScroll(scrollTop: number, scrollLeft: number, height: number, rowHeight: number, length: number) {
-    var renderedRowsCount = ceil(height / rowHeight);
+    let renderedRowsCount = ceil(height / rowHeight);
 
-    var visibleStart = floor(scrollTop / rowHeight);
+    let visibleStart = floor(scrollTop / rowHeight);
 
-    var visibleEnd = min(
+    let visibleEnd = min(
         visibleStart + renderedRowsCount,
         length);
 
-    var displayStart = max(
+    let displayStart = max(
         0,
         visibleStart - renderedRowsCount * 2);
 
-    var displayEnd = min(
+    let displayEnd = min(
         visibleStart + renderedRowsCount * 2,
         length);
 
-    var nextScrollState = {
+    let nextScrollState = {
       visibleStart,
       visibleEnd,
       displayStart,
@@ -85,7 +81,7 @@ module.exports = {
   },
 
   metricsUpdated() {
-    var height = this.DOMMetrics.viewportHeight();
+    let height = this.DOMMetrics.viewportHeight();
     if (height) {
       this.updateScroll(
         this.state.scrollTop,
@@ -98,7 +94,8 @@ module.exports = {
   },
 
   componentWillReceiveProps(nextProps: { rowHeight: number; rowsCount: number }) {
-    if (this.props.rowHeight !== nextProps.rowHeight) {
+    if (this.props.rowHeight !== nextProps.rowHeight ||
+        this.props.minHeight !== nextProps.minHeight) {
       this.setState(this.getGridState(nextProps));
     } else if (this.props.rowsCount !== nextProps.rowsCount) {
       this.updateScroll(

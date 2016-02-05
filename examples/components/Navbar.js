@@ -1,6 +1,3 @@
-/**
-* @jsx React.DOM
-*/
 module.exports = React.createClass({
   render : function(){
     return(
@@ -22,20 +19,28 @@ module.exports = React.createClass({
                   <li><a href="documentation.html#/apireference">API Reference</a></li>
                 </ul>
               </li>
+
               <li className="dropdown">
                 <a href="#" className="dropdown-toggle" data-toggle="dropdown">Examples <b className="caret"></b></a>
                   <ul className="dropdown-menu">
                     <li><a href="examples.html#/basic">Basic Use</a></li>
                     <li><a href="examples.html#/resizable">Resizable Grid</a></li>
                     <li><a href="examples.html#/fixed">Frozen Columns</a></li>
+                    <li><a href="examples.html#/single-row-select">Single Row Selection</a></li>
+                    <li><a href="examples.html#/multi-row-select">Multiple Row Selection</a></li>
                     <li><a href="examples.html#/editable">Editable Grid</a></li>
                     <li><a href="examples.html#/formatters">Custom Formatters</a></li>
                     <li><a href="examples.html#/editors">Rich Cell Editors</a></li>
+                    <li>
+                      <a href="examples.html#/cell-drag">Cell drag down/Fill Column</a>
+                    </li>
                     <li><a href="examples.html#/sortable">Sortable Grid</a></li>
+                    <li><a href="examples.html#/filterable">Filterable Grid</a></li>
                     <li><a href="examples.html#/million-rows">One Million Rows</a></li>
                     <li><a href="examples.html#/immutable-data">Immutable Data Grid</a></li>
                     <li><a href="examples.html#/all-the-features">All-The-Features Grid</a></li>
                     <li><a href="examples.html#/custom-row-renderer">Custom Row Render</a></li>
+                    <li><a href="examples.html#/custom-row-renderer">Empty Rows</a></li>
                     <li>
                       <a href="examples.html#/all-features-immutable">All-The-Features with Immutable Data</a>
                     </li>

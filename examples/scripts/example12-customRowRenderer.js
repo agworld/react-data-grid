@@ -1,7 +1,7 @@
 var QuickStartDescription = require('../components/QuickStartDescription')
 var ReactPlayground       = require('../assets/js/ReactPlayground');
 //this leads to Row is undefined?
-var Row                   = require('../build/react-data-grid-with-addons').Row
+var Row                   = require('react-data-grid-with-addons').Row
 
 var SimpleExample = `
 
@@ -83,11 +83,11 @@ var RowRenderer = React.createClass({
   },
  getRowStyle: function() {
    return {
-     backgroundColor: this.getRowBackground()
+     color: this.getRowBackground()
    }
  },
  getRowBackground: function() {
-   return this.props.idx % 2 ?  'green' : 'white'
+   return this.props.idx % 2 ?  'green' : 'blue'
  },
  render: function() {
    //here we are just changing the style
@@ -107,7 +107,7 @@ var Example = React.createClass({
     rowRenderer={RowRenderer}/>);
   }
 });
-React.render(<Example />, mountNode);
+ReactDOM.render(<Example />, mountNode);
 `;
 
 module.exports = React.createClass({
@@ -117,7 +117,7 @@ module.exports = React.createClass({
       <div>
         <h3>Overriding the row renderer</h3>
         <p>This shows how you can easily override the default row renderer</p>
-        <p>Here we are just using that to wrap the default renderer, and then going back inot the 'normal' flow, just changing some backgrounds</p>
+        <p>Here we are just using that to wrap the default renderer, and then going back into the 'normal' flow, just changing some backgrounds</p>
         <p>NOTE: if you want to use fixed columns as well, make sure you implement and pass through the call to setScrollLeft</p>
         <ReactPlayground codeText={SimpleExample} />
       </div>
