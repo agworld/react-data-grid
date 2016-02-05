@@ -1,20 +1,12 @@
-/* @flow */
-/**
- * @jsx React.DOM
+const React                = require('react');
+const PropTypes            = React.PropTypes;
+const Header               = require('./Header');
+const Viewport             = require('./Viewport');
+const ExcelColumn = require('./addons/grids/ExcelColumn');
+const GridScrollMixin      = require('./GridScrollMixin');
+const DOMMetrics           = require('./DOMMetrics');
 
-
- */
-"use strict";
-
-var React                = require('react');
-var PropTypes            = React.PropTypes;
-var Header               = require('./Header');
-var Viewport             = require('./Viewport');
-var ExcelColumn = require('./addons/grids/ExcelColumn');
-var GridScrollMixin      = require('./GridScrollMixin');
-var DOMMetrics           = require('./DOMMetrics');
-
-var Grid = React.createClass({
+const Grid = React.createClass({
 
   propTypes: {
     rowGetter: PropTypes.oneOfType([PropTypes.array, PropTypes.func]).isRequired,

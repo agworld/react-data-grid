@@ -1,20 +1,12 @@
-/* @flow */
-/**
- * @jsx React.DOM
+const React             = require('react');
+const joinClasses       = require('classnames');
+const cloneWithProps    = require('react/lib/cloneWithProps');
+const EditorContainer   = require('./addons/editors/EditorContainer');
+const ExcelColumn       = require('./addons/grids/ExcelColumn');
+const isFunction        = require('./addons/utils/isFunction');
+const CellMetaDataShape = require('./PropTypeShapes/CellMetaDataShape');
 
-
- */
-'use strict';
-
-var React             = require('react');
-var joinClasses       = require('classnames');
-var cloneWithProps    = require('react/lib/cloneWithProps');
-var EditorContainer   = require('./addons/editors/EditorContainer');
-var ExcelColumn       = require('./addons/grids/ExcelColumn');
-var isFunction        = require('./addons/utils/isFunction');
-var CellMetaDataShape = require('./PropTypeShapes/CellMetaData');
-
-var Cell = React.createClass({
+const Cell = React.createClass({
 
   propTypes : {
     rowIdx : React.PropTypes.number.isRequired,

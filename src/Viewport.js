@@ -1,20 +1,12 @@
-/* @flow */
-/**
- * @jsx React.DOM
+const React             = require('react');
+const Canvas            = require('./Canvas');
+const PropTypes            = React.PropTypes;
 
-
- */
-'use strict';
-
-var React             = require('react');
-var Canvas            = require('./Canvas');
-var PropTypes            = React.PropTypes;
-
-var ViewportScroll      = require('./ViewportScrollMixin');
+const ViewportScroll      = require('./ViewportScrollMixin');
 
 
 
-var Viewport = React.createClass({
+const Viewport = React.createClass({
   mixins: [ViewportScroll],
 
   propTypes: {

@@ -1,12 +1,6 @@
-/* @flow */
-/**
- * @jsx React.DOM
- */
-'use strict';
+const React                   = require('react');
 
-var React                   = require('react');
-
-var CheckboxEditor = React.createClass({
+const CheckboxEditor = React.createClass({
 
   PropTypes : {
     value : React.PropTypes.bool.isRequired,

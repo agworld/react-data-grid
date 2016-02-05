@@ -1,23 +1,16 @@
-/* @flow */
-/**
- * @jsx React.DOM
-
- */
-"use strict";
-
-var React                 = require('react');
-var PropTypes             = React.PropTypes;
-var BaseGrid              = require('../../Grid');
-var Row                   = require('../../Row');
-var ExcelColumn           = require('./ExcelColumn');
-var KeyboardHandlerMixin  = require('../../KeyboardHandlerMixin');
-var CheckboxEditor        = require('../editors/CheckboxEditor');
-var FilterableHeaderCell  = require('../cells/headerCells/FilterableHeaderCell');
-var cloneWithProps        = require('react/lib/cloneWithProps');
-var DOMMetrics           = require('../../DOMMetrics');
-var ColumnMetricsMixin      = require('../../ColumnMetricsMixin');
-var RowUtils = require('../../RowUtils');
-var ColumnUtils = require('../../ColumnUtils');
+const React                 = require('react');
+const PropTypes             = React.PropTypes;
+const BaseGrid              = require('../../Grid');
+const Row                   = require('../../Row');
+const ExcelColumn           = require('./ExcelColumn');
+const KeyboardHandlerMixin  = require('../../KeyboardHandlerMixin');
+const CheckboxEditor        = require('../editors/CheckboxEditor');
+const FilterableHeaderCell  = require('../cells/headerCells/FilterableHeaderCell');
+const cloneWithProps        = require('react/lib/cloneWithProps');
+const DOMMetrics           = require('../../DOMMetrics');
+const ColumnMetricsMixin      = require('../../ColumnMetricsMixin');
+const RowUtils = require('../../RowUtils');
+const ColumnUtils = require('../../ColumnUtils');
 
 if(!Object.assign){
   Object.assign = require('object-assign');

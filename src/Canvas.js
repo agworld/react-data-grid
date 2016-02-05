@@ -1,20 +1,14 @@
-/* @flow */
-/**
- * @jsx React.DOM
- */
-"use strict";
-var React           = require('react');
-var joinClasses     = require('classnames');
-var PropTypes       = React.PropTypes;
-var cloneWithProps  = require('react/lib/cloneWithProps');
-var shallowEqual    = require('react/lib//shallowEqual');
-var emptyFunction   = require('react/lib/emptyFunction');
-var ScrollShim      = require('./ScrollShim');
-var Row             = require('./Row');
-var ExcelColumn     = require('./addons/grids/ExcelColumn');
-var RowContainer    = require('./RowContainer');
+const React           = require('react');
+const joinClasses     = require('classnames');
+const PropTypes       = React.PropTypes;
+const cloneWithProps  = require('react/lib/cloneWithProps');
+const shallowEqual    = require('react-addons-shallow-compare');
+const ScrollShim      = require('./ScrollShim');
+const Row             = require('./Row');
+const ExcelColumn     = require('./addons/grids/ExcelColumn');
+const RowContainer    = require('./RowContainer');
 
-var Canvas = React.createClass({
+const Canvas = React.createClass({
   mixins: [ScrollShim],
 
   propTypes: {
@@ -129,7 +123,7 @@ var Canvas = React.createClass({
   getDefaultProps() {
     return {
       rowRenderer: Row,
-      onRows: emptyFunction
+      onRows: function(){}
     };
   },
 
